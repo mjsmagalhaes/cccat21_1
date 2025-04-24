@@ -1,79 +1,26 @@
 import express, { Request, Response } from "express";
-import crypto from "crypto";
-import pgp from "pg-promise";
+import { Database } from './db/db'
 import Debug from 'debug'
 
 const app = express();
 app.use(express.json());
 
 const debug = Debug('deposit')
-const error = Debug('error')
 Debug.enable('deposit, error')
 
-// const accounts: any = [];
-const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
-
-function reportError(errorToReport: unknown) {
-  if (errorToReport instanceof Error) {
-    error(`${errorToReport.name}: ${errorToReport.message}`);
-  } else {
-    error('Unknown Error');
-  }
-}
-
-async function getAccount(accountId: string) {
-  try {
-    const [account] = await connection.query(
-      "select * from ccca.account acc where acc.account_id = ${account_id}",
-      { account_id: accountId }
-    );
-
-    debug('account_id:', accountId, 'account:', account);
-
-    return account;
-  } catch (error) {
-    reportError(error);
-    return null;
-  }
-}
-
-async function getAsset(assetId: string) {
-  try {
-    const [asset] = await connection.query(
-      "select * from ccca.asset a where a.ticker = ${asset_id}",
-      { asset_id: assetId }
-    );
-
-    console.log('asset_id:', assetId, 'asset:', asset);
-    return asset;
-  } catch (error) {
-    reportError(error)
-    return null;
-  }
-}
-
-async function createDeposit(account_id: string, asset_id: string, quantity: Number) {
-  try {
-    await connection.query(
-      "insert into ccca.account_asset (account_id, asset_id, quantity) values ($1, $2, $3)",
-      [account_id, asset_id, quantity]
-    );
-  } catch (error) {
-    return null;
-  }
-}
 
 app.post("/deposit", async (req: Request, res: Response) => {
   const input = req.body;
+  const db = new Database();
 
-  const account = await getAccount(input.accountId);
+  const account = await db.getAccount(input.accountId);
   if (account == null) {
     return res.status(422).json({
       error: 'Account not found.'
     });
   }
 
-  const asset = await getAsset(input.assetId)
+  const asset = await db.getAsset(input.assetId)
   if (asset == null) {
     return res.status(422).json({
       error: 'Asset not found.'
@@ -86,7 +33,7 @@ app.post("/deposit", async (req: Request, res: Response) => {
     })
   }
 
-  const deposit = createDeposit(account.account_id, asset.asset_id, input.quantity)
+  const deposit = db.createDeposit(account.account_id, asset.asset_id, input.quantity)
   if (deposit == null) {
     return res.status(422).json({
       error: 'Error creating deposit.'
