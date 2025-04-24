@@ -1,13 +1,14 @@
+import { Config } from "./config";
 import pgp from "pg-promise";
-import Debug from 'debug'
-import { Log } from './log'
-import type { Wallet } from "./Wallet";
+import Debug from "debug";
+import { Log } from "./log";
+import type { Wallet } from "../tipos/Wallet";
 
-const debug = Debug('db');
+const debug = Debug("db");
 const log = new Log();
 
 export class Database {
-  static connection = pgp()("postgres://postgres:123456@localhost:5432/app");
+  static connection = pgp()(Config.getConnection());
 
   getAccount = async (accountId: string) => {
     try {
@@ -16,14 +17,14 @@ export class Database {
         { account_id: accountId }
       );
 
-      debug('account_id:', accountId, 'account:', account);
+      debug("account_id:", accountId, "account:", account);
 
       return account;
     } catch (error) {
       log.reportError(error);
       return null;
     }
-  }
+  };
 
   getAsset = async (assetId: string) => {
     try {
@@ -32,13 +33,13 @@ export class Database {
         { asset_id: assetId }
       );
 
-      debug('asset_id:', assetId, 'asset:', asset);
+      debug("asset_id:", assetId, "asset:", asset);
       return asset;
     } catch (error) {
-      log.reportError(error)
+      log.reportError(error);
       return null;
     }
-  }
+  };
 
   getWallet = async (account_id: string, asset_id: string) => {
     let [wallet] = await Database.connection.query(
@@ -46,23 +47,30 @@ export class Database {
       { account_id, asset_id }
     );
 
-    if (wallet)
-      (wallet as Wallet).quantity = parseFloat(wallet.quantity);
+    if (wallet) (wallet as Wallet).quantity = parseFloat(wallet.quantity);
 
     return wallet as Wallet;
-  }
+  };
 
-  createWallet = async (account_id: string, asset_id: string, quantity: Number) => {
+  createWallet = async (
+    account_id: string,
+    asset_id: string,
+    quantity: Number
+  ) => {
     await Database.connection.query(
       "insert into ccca.account_asset (account_id, asset_id, quantity) values (${account_id}, ${asset_id}, ${quantity})",
       { account_id, asset_id, quantity }
     );
-  }
+  };
 
-  updateWallet = async (account_id: string, asset_id: string, quantity: Number) => {
+  updateWallet = async (
+    account_id: string,
+    asset_id: string,
+    quantity: Number
+  ) => {
     await Database.connection.query(
       "update ccca.account_asset aa set quantity=${quantity} where aa.account_id=${account_id} and aa.asset_id=${asset_id};",
       { account_id, asset_id, quantity }
     );
-  }
+  };
 }
