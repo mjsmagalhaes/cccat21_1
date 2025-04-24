@@ -1,6 +1,7 @@
 import pgp from "pg-promise";
 import Debug from 'debug'
 import { Log } from './log'
+import type { Wallet } from "./Wallet";
 
 const debug = Debug('db');
 const log = new Log();
@@ -39,14 +40,29 @@ export class Database {
     }
   }
 
-  createDeposit = async (account_id: string, asset_id: string, quantity: Number) => {
-    try {
-      await Database.connection.query(
-        "insert into ccca.account_asset (account_id, asset_id, quantity) values ($1, $2, $3)",
-        [account_id, asset_id, quantity]
-      );
-    } catch (error) {
-      return null;
-    }
+  getWallet = async (account_id: string, asset_id: string) => {
+    let [wallet] = await Database.connection.query(
+      "select * from ccca.account_asset aa where aa.account_id = ${account_id} and aa.asset_id = ${asset_id}",
+      { account_id, asset_id }
+    );
+
+    if (wallet)
+      (wallet as Wallet).quantity = parseFloat(wallet.quantity);
+
+    return wallet as Wallet;
+  }
+
+  createWallet = async (account_id: string, asset_id: string, quantity: Number) => {
+    await Database.connection.query(
+      "insert into ccca.account_asset (account_id, asset_id, quantity) values (${account_id}, ${asset_id}, ${quantity})",
+      { account_id, asset_id, quantity }
+    );
+  }
+
+  updateWallet = async (account_id: string, asset_id: string, quantity: Number) => {
+    await Database.connection.query(
+      "update ccca.account_asset aa set quantity=${quantity} where aa.account_id=${account_id} and aa.asset_id=${asset_id};",
+      { account_id, asset_id, quantity }
+    );
   }
 }
