@@ -1,12 +1,25 @@
 import express, { Request, Response } from "express";
 import crypto from "crypto";
 import pgp from "pg-promise";
+import Debug from 'debug'
 
 const app = express();
 app.use(express.json());
 
+const debug = Debug('deposit')
+const error = Debug('error')
+Debug.enable('deposit, error')
+
 // const accounts: any = [];
 const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
+
+function reportError(errorToReport: unknown) {
+  if (errorToReport instanceof Error) {
+    error(`${errorToReport.name}: ${errorToReport.message}`);
+  } else {
+    error('Unknown Error');
+  }
+}
 
 async function getAccount(accountId: string) {
   try {
@@ -15,9 +28,11 @@ async function getAccount(accountId: string) {
       { account_id: accountId }
     );
 
-    console.log('account_id:', accountId, 'account:', account);
+    debug('account_id:', accountId, 'account:', account);
+
     return account;
   } catch (error) {
+    reportError(error);
     return null;
   }
 }
@@ -32,6 +47,7 @@ async function getAsset(assetId: string) {
     console.log('asset_id:', assetId, 'asset:', asset);
     return asset;
   } catch (error) {
+    reportError(error)
     return null;
   }
 }
@@ -80,10 +96,6 @@ app.post("/deposit", async (req: Request, res: Response) => {
   res.json({
     status: 'ok'
   });
-});
-
-app.get("/assets", async (req: Request, res: Response) => {
-
 });
 
 app.listen(3000);
