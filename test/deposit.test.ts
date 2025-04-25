@@ -2,17 +2,17 @@ import axios from "axios";
 
 axios.defaults.validateStatus = () => true;
 
-beforeAll(() => {});
+beforeAll(() => { });
 
-afterAll(() => {});
+afterAll(() => { });
 
 test("Não deve depositar se a conta não existir", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/deposit", {
         accountId: "123",
     });
 
-    const outputSignup = responseDeposit.data;
-    expect(outputSignup.error).toBe("Account not found.");
+    const outputDeposit = responseDeposit.data;
+    expect(outputDeposit.error).toBe("Account not found.");
 });
 
 test("Não deve depositar se o asset não existir", async () => {
@@ -21,8 +21,8 @@ test("Não deve depositar se o asset não existir", async () => {
         assetId: "",
     });
 
-    const outputSignup = responseDeposit.data;
-    expect(outputSignup.error).toBe("Asset not found.");
+    const outputDeposit = responseDeposit.data;
+    expect(outputDeposit.error).toBe("Asset not found.");
 });
 
 test("Não deve depositar se a quantidade for menor que zero", async () => {
@@ -32,8 +32,8 @@ test("Não deve depositar se a quantidade for menor que zero", async () => {
         quantity: 0,
     });
 
-    const outputSignup = responseDeposit.data;
-    expect(outputSignup.error).toBe("Wrong quantity.");
+    const outputDeposit = responseDeposit.data;
+    expect(outputDeposit.error).toBe("Wrong quantity.");
 });
 
 test("Deve criar um deposito", async () => {
@@ -43,6 +43,6 @@ test("Deve criar um deposito", async () => {
         quantity: 100,
     });
 
-    const outputSignup = responseDeposit.data;
-    expect(outputSignup.status).toBe("ok");
+    const outputDeposit = responseDeposit.data;
+    expect(outputDeposit.status).toBe("ok");
 });

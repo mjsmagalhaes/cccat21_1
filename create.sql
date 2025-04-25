@@ -13,7 +13,7 @@ create table ccca.account (
 
 insert into ccca.account(account_id, name, email, document, password) 
 values (
-	'1fb6e901-f4de-4653-80e7-07c207073f61', 'A B', 'a@b.com', '10559651732', '123ABCdef'
+	'1fb6e901-f4de-4653-80e7-07c207073f61', 'A B', 'a@b.com', '87465849004', '123ABCdef'
 );
 
 create table ccca.asset (
@@ -34,4 +34,9 @@ create table ccca.account_asset (
 	quantity decimal,
 	foreign key (account_id) references ccca.account(account_id),
 	foreign key (asset_id) references ccca.asset(asset_id)
+);
+
+
+insert into ccca.account_asset(account_id, asset_id, quantity) values (
+'1fb6e901-f4de-4653-80e7-07c207073f61', '9b9174a1-17ce-423e-9fef-0aa1dbd314de', 100
 );

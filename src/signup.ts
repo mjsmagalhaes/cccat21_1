@@ -9,15 +9,15 @@ app.use(express.json());
 // const accounts: any = [];
 const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
 
-function isValidName (name: string) {
+function isValidName(name: string) {
     return name.match(/[a-zA-Z] [a-zA-Z]+/);
 }
 
-function isValidEmail (email: string) {
+function isValidEmail(email: string) {
     return email.match(/^(.+)\@(.+)$/);
 }
 
-function isValidPassword (password: string) {
+function isValidPassword(password: string) {
     if (password.length < 8) return false;
     if (!password.match(/\d+/)) return false;
     if (!password.match(/[a-z]+/)) return false;

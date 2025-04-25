@@ -2,7 +2,10 @@ import config from "config";
 
 export class Config {
     static getConnection = () => {
-        console.log();
         return config.get<string>("connection");
+    };
+
+    static getTestAccount = () => {
+        return config.get<string>("test.account");
     };
 }
