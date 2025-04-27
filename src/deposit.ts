@@ -1,6 +1,7 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
 import { Database } from "./services/db";
+import { errorResponse } from "./services/error";
 
 const app = express();
 app.use(express.json());
@@ -15,18 +16,11 @@ router.post("/", async (req: Request, res: Response) => {
     const quantity = parseFloat(input.quantity);
 
     const account = await db.getAccount(input.accountId);
-    if (account == null) {
-        return res.status(422).json({
-            error: "Account not found.",
-        });
-    }
+    if (account == null)
+        return errorResponse(res, "ACCOUNT_NOT_FOUND");
 
     const asset = await db.getAsset(input.assetId);
-    if (asset == null) {
-        return res.status(422).json({
-            error: "Asset not found.",
-        });
-    }
+    if (asset == null) return errorResponse(res, "ASSET_NOT_FOUND");
 
     if (!input.quantity || isNaN(quantity) || quantity < 0) {
         return res.status(422).json({
@@ -34,22 +28,7 @@ router.post("/", async (req: Request, res: Response) => {
         });
     }
 
-    const wallet = await db.getWallet(account.account_id, asset.asset_id);
-    if (wallet == null) {
-        debug(
-            `Wallet ${account.account_id}:${asset.asset_id} not found. Creating ...`
-        );
-        await db.createWallet(account.account_id, asset.asset_id, quantity);
-    } else {
-        debug(`Wallet ${account.account_id}:${asset.asset_id} found. Updating ...`);
-        await db.updateWallet(
-            account.account_id,
-            asset.asset_id,
-            quantity + wallet.quantity
-        );
-    }
-
-    const new_wallet = await db.getWallet(account.account_id, asset.asset_id);
+    const new_wallet = await db.createOrUpdateWallet(account, asset, quantity);
 
     res.json({
         status: "ok",
