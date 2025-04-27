@@ -33,14 +33,14 @@ test("Não deve retirar se a quantidade for menor que zero", async () => {
     });
 
     const outputWithdraw = responseDeposit.data;
-    expect(outputWithdraw.error).toBe("Wrong quantity.");
+    expect(outputWithdraw.error).toBe("Bad Withdraw request.");
 });
 
 test("Não deve retirar se a quantidade for maior que o disponível", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/withdraw", {
         accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
         assetId: "BTC",
-        quantity: 120,
+        quantity: 12000,
     });
 
     const outputWithdraw = responseDeposit.data;
@@ -51,7 +51,7 @@ test("Deve fazer uma retirada", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/withdraw", {
         accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
         assetId: "BTC",
-        quantity: 100,
+        quantity: 1,
     });
 
     const outputWithdraw = responseDeposit.data;

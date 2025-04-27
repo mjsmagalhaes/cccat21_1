@@ -40,3 +40,15 @@ create table ccca.account_asset (
 insert into ccca.account_asset(account_id, asset_id, quantity) values (
 '1fb6e901-f4de-4653-80e7-07c207073f61', '9b9174a1-17ce-423e-9fef-0aa1dbd314de', 100
 );
+
+create table ccca.order(
+    order_id uuid,
+	account_id uuid,
+	asset_id uuid,
+    asset_payment_id uuid,
+    side varchar(10),
+	quantity decimal,
+    price decimal,
+    primary key (order_id),
+	foreign key (account_id) references ccca.account(account_id)
+);
