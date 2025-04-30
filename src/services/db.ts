@@ -1,16 +1,16 @@
-import { Config } from "./config";
 import pgp from "pg-promise";
 import Debug from "debug";
 import { Log } from "./log";
-import type { Wallet } from "../tipos/Wallet";
-import { Account } from "../tipos/Account";
-import { Asset } from "../tipos/Asset";
+import type { Wallet } from "../../backend/entity/Wallet";
+import { Account } from "../../backend/entity/Account";
+import { Asset } from "../../backend/entity/Asset";
+import { ConfigService } from "../../backend/service/ConfigService";
 
 const debug = Debug("db");
 const log = new Log();
 
 export class Database {
-    static connection = pgp()(Config.getConnection());
+    static connection = ConfigService.getConnection();
 
     getAccount = async (accountId: string): Promise<Account | null> => {
         try {
@@ -80,7 +80,11 @@ export class Database {
         );
     };
 
-    createOrUpdateWallet = async (account: Account, asset: Asset, quantity: number) => {
+    createOrUpdateWallet = async (
+        account: Account,
+        asset: Asset,
+        quantity: number
+    ) => {
         const wallet = await this.getWallet(account, asset);
 
         await this.updateWallet(
@@ -90,9 +94,16 @@ export class Database {
         );
 
         return await this.getWallet(account, asset);
-    }
+    };
 
-    createOrder = async (account: Account, asset: Asset, paymentAsset: Asset, side: string, quantity: number, price: number) => {
+    createOrder = async (
+        account: Account,
+        asset: Asset,
+        paymentAsset: Asset,
+        side: string,
+        quantity: number,
+        price: number
+    ) => {
         Database.connection.query(
             "insert into ccca.order(order_id,account_id,asset_id,asset_payment_id,side, quantity, price) values (${order_id},${account_id},${asset_id},${asset_payment_id},${side},${quantity},${price})",
             {
@@ -100,8 +111,10 @@ export class Database {
                 account_id: account.account_id,
                 asset_id: asset.asset_id,
                 asset_payment_id: paymentAsset.asset_id,
-                side, quantity, price
+                side,
+                quantity,
+                price,
             }
-        )
-    }
+        );
+    };
 }

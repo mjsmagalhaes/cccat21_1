@@ -2,13 +2,15 @@ import axios from "axios";
 
 axios.defaults.validateStatus = () => true;
 
-beforeAll(() => { });
+beforeAll(() => {});
 
-afterAll(() => { });
+afterAll(() => {});
 
 test("Não deve depositar se a conta não existir", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/deposit", {
-        accountId: "123",
+        accountId: "1fb6e901-f4de-4653-80e7-07c207073f92",
+        assetId: "BTC",
+        quantity: 1,
     });
 
     const outputDeposit = responseDeposit.data;
@@ -19,6 +21,7 @@ test("Não deve depositar se o asset não existir", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/deposit", {
         accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
         assetId: "",
+        quantity: 1,
     });
 
     const outputDeposit = responseDeposit.data;
@@ -33,7 +36,7 @@ test("Não deve depositar se a quantidade for menor que zero", async () => {
     });
 
     const outputDeposit = responseDeposit.data;
-    expect(outputDeposit.error).toBe("Wrong quantity.");
+    expect(outputDeposit.error).toBe("Bad Deposit request.");
 });
 
 test("Deve criar um deposito", async () => {
