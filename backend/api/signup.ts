@@ -1,8 +1,7 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
 import { Signup } from "../application/Signup";
-import { AccountDAODatabase } from "../DAO/DB/AccountDAODatabase";
-import { Account } from "../entity/Account";
+import { AccountDAODatabase } from "../DAO/DB";
 
 const app = express();
 app.use(express.json());
@@ -13,7 +12,7 @@ const debug = Debug("signup");
 const reportError = Debug("error");
 
 router.post("/", async (req: Request, res: Response) => {
-    const input = req.body as Account;
+    const input = req.body;
 
     try {
         debug(input);

@@ -1,58 +1,49 @@
 import Debug from "debug";
-import pgp from "pg-promise";
-import { Wallet } from "./../../entity/Wallet";
-import { ConfigService } from "../../service/ConfigService";
-import { Account } from "../../entity/Account";
-import { Asset } from "../../entity/Asset";
+
+import { Account, Asset, Wallet } from "../../entity";
+import { DAODatabase } from "./DAODatabase";
+import { WalletDAO } from "./..";
+
 import { ERROR_MESSAGE } from "../../service/ErrorService";
 
-export interface WalletDAO {
-    getWallet(account: Account, asset: Asset): Promise<Wallet>;
+const debug = Debug("db:wallet");
 
-    createOrUpdate(
-        account: Account,
-        asset: Asset,
-        quantity: number
-    ): Promise<Wallet>;
-}
-
-const debug = Debug("dao:wallet");
-Debug.enable("dao:wallet");
-
-export class WalletDAODatabase implements WalletDAO {
-    static connection = ConfigService.getConnection();
-
+export class WalletDAODatabase extends DAODatabase implements WalletDAO {
     async getWallet(account: Account, asset: Asset): Promise<Wallet> {
-        debug("getWallet", account, asset);
+        debug("get", account, asset);
 
-        let [wallet] = await WalletDAODatabase.connection.query(
-            "select * from ccca.account_asset aa where aa.account_id = ${account_id} and aa.asset_id = ${asset_id}",
-            { account_id: account.account_id, asset_id: asset.asset_id }
+        let [wallet] = await this.getConnection().query(
+            "select * from ccca.account_asset where account_id = ${account_id} and asset_id = ${asset_id}",
+            { account_id: account.id, asset_id: asset.id }
         );
 
-        if (wallet == null)
-            wallet = this.create(account.account_id, asset.asset_id, 0);
+        if (!wallet) {
+            await this.create(account.id, asset.id, 0);
+            wallet = await this.getWallet(account, asset);
+        }
 
+        debug("get:", wallet);
         (wallet as Wallet).quantity = parseFloat(wallet.quantity);
 
-        debug("wallet:", wallet);
         return wallet;
     }
 
-    private create = async (
+    private async create(
         account_id: string,
         asset_id: string,
         quantity: Number
-    ) => {
-        await WalletDAODatabase.connection.query(
+    ) {
+        debug("create:", account_id, asset_id, quantity);
+
+        await this.getConnection().query(
             "insert into ccca.account_asset (account_id, asset_id, quantity) values (${account_id}, ${asset_id}, ${quantity})",
             { account_id, asset_id, quantity }
         );
-    };
+    }
 
     async update(account_id: string, asset_id: string, quantity: Number) {
-        await WalletDAODatabase.connection.query(
-            "update ccca.account_asset aa set quantity=${quantity} where aa.account_id=${account_id} and aa.asset_id=${asset_id};",
+        await this.getConnection().query(
+            "update ccca.account_asset set quantity=${quantity} where account_id=${account_id} and asset_id=${asset_id};",
             { account_id, asset_id, quantity }
         );
     }
@@ -63,11 +54,7 @@ export class WalletDAODatabase implements WalletDAO {
         if (wallet.quantity + quantity < 0)
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
-        await this.update(
-            account.account_id,
-            asset.asset_id,
-            quantity + wallet.quantity
-        );
+        await this.update(account.id, asset.id, quantity + wallet.quantity);
 
         return await this.getWallet(account, asset);
     }

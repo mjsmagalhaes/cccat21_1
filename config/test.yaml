@@ -7,3 +7,9 @@ test:
     document: '87465849004'
     password: 123ABCdef
   asset:
+    usd:
+      id: 1c3d068e-c326-4ad1-9246-df2b84c393db
+      ticker: USD
+    btc:
+      id: 9b9174a1-17ce-423e-9fef-0aa1dbd314de
+      ticker: BTC

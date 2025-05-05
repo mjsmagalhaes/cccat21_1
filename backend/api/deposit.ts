@@ -1,26 +1,24 @@
-import { GetAccount } from "./../application/GetAccount";
 import express, { Request, Response } from "express";
 import Debug from "debug";
 import { Deposit } from "../application/Deposit";
-import { AccountDAODatabase } from "../DAO/DB/AccountDAODatabase";
-import { ERROR_MESSAGE } from "../service/ErrorService";
-import { AssetDAODatabase } from "../DAO/DB/AssetDAODatabase";
-import { WalletDAODatabase } from "../DAO/DB/WalletDAODatabase";
+import {
+    AccountDAODatabase,
+    AssetDAODatabase,
+    WalletDAODatabase,
+} from "../DAO/DB";
 
-const app = express();
-app.use(express.json());
 const router = express.Router();
-
 const debug = Debug("deposit");
+const reportError = Debug("error");
+
 const deposit = new Deposit(
     new AccountDAODatabase(),
     new AssetDAODatabase(),
     new WalletDAODatabase()
 );
-const getAccount = new GetAccount(new AccountDAODatabase());
 
 router.post("/", async (req: Request, res: Response) => {
-    const input = req.body;
+    const input = req.body ?? {};
     const quantity = parseFloat(input.quantity);
 
     try {
@@ -39,6 +37,8 @@ router.post("/", async (req: Request, res: Response) => {
             asset_id: wallet.asset_id,
         });
     } catch (error) {
+        reportError(error);
+
         if (error instanceof Error)
             res.status(422).json({ error: error.message });
     }

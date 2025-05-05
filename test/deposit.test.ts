@@ -1,6 +1,18 @@
 import axios from "axios";
+import { ConfigService } from "../backend/service/ConfigService";
+import { Deposit } from "../backend/application/Deposit";
+import { AccountDAODatabase, WalletDAODatabase } from "../backend/DAO/DB";
+import { AssetDAODatabase } from "../backend/DAO/DB/AssetDAODatabase";
 
 axios.defaults.validateStatus = () => true;
+
+const account = ConfigService.getTestAccount();
+const btc = ConfigService.getTestAsset("btc");
+const deposit = new Deposit(
+    new AccountDAODatabase(),
+    new AssetDAODatabase(),
+    new WalletDAODatabase()
+);
 
 beforeAll(() => {});
 
@@ -47,5 +59,6 @@ test("Deve criar um deposito", async () => {
     });
 
     const outputDeposit = responseDeposit.data;
+    console.log(outputDeposit);
     expect(outputDeposit.status).toBe("ok");
 });

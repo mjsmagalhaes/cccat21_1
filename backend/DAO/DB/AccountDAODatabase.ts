@@ -1,17 +1,18 @@
 import Debug from "debug";
-import { AccountDAO } from "../AccountDAO";
-import { Account } from "./../../entity/Account";
-import { ERROR_MESSAGE } from "../../service/ErrorService";
+import { Account } from "../../entity";
 import { DAODatabase } from "./DAODatabase";
+import { AccountDAO } from "..";
+
+import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("db:account");
 
 export class AccountDAODatabase extends DAODatabase implements AccountDAO {
-    async create(account: Account): Promise<{ accountId: string }> {
+    async create(account: Account): Promise<Account> {
         const accountId = crypto.randomUUID();
 
         await this.getConnection().query(
-            "insert into ccca.account (account_id, name, email, document, password) values ($1, $2, $3, $4, $5)",
+            "insert into ccca.account (id, name, email, document, password) values ($1, $2, $3, $4, $5)",
             [
                 accountId,
                 account.name,
@@ -21,15 +22,15 @@ export class AccountDAODatabase extends DAODatabase implements AccountDAO {
             ]
         );
 
-        return { accountId };
+        return this.get(accountId);
     }
 
-    update(account: Account): void { }
-    delete(account: Account): void { }
+    update(account: Account): void {}
+    delete(accountId: string): void {}
 
     async get(accountId: string) {
         const [accountData] = await this.getConnection().query(
-            "select * from ccca.account where account_id = $1",
+            "select * from ccca.account where id = $1",
             [accountId]
         );
 

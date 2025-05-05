@@ -1,6 +1,6 @@
 import pgp from "pg-promise";
 import config from "config";
-import { Account } from "../entity/Account";
+import { Account, Asset } from "../entity";
 
 export class ConfigService {
     static connection: pgp.IDatabase<{}> | undefined = undefined;
@@ -14,5 +14,9 @@ export class ConfigService {
 
     static getTestAccount = () => {
         return config.get<Account>("test.account");
+    };
+
+    static getTestAsset = (asset: string) => {
+        return config.get<Asset>("test.asset." + asset);
     };
 }

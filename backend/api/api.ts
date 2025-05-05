@@ -7,8 +7,8 @@ import deposit from "./deposit";
 import withdraw from "./withdraw";
 import place_order from "./place_order";
 
-// Debug.disable();
-Debug.enable("place_order, withdraw, db:*, error");
+Debug.disable();
+Debug.enable("place_order,withdraw,deposit,db:*,error");
 
 const app = express();
 app.use(express.json());

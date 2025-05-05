@@ -1,13 +1,13 @@
 import Debug from "debug";
-import { AccountDAO } from "../DAO/AccountDAO";
-import { Account } from "../entity/Account";
+import { AccountDAO } from "../DAO";
+import { Account } from "../entity";
 import { ValidationService } from "../service/ValidationService";
 import { ERROR_MESSAGE } from "../service/ErrorService";
 
 const debug = Debug("signup");
 
 export class Signup {
-    constructor(private readonly account: AccountDAO) { }
+    constructor(private readonly account: AccountDAO) {}
 
     public async execute(account: Account) {
         debug("Execute");
@@ -21,7 +21,7 @@ export class Signup {
             throw new Error(ERROR_MESSAGE.INVALID_DOCUMENT);
 
         debug("Criando conta");
-        const { accountId } = await this.account.create(account);
+        const { id: accountId } = await this.account.create(account);
 
         return { accountId };
     }

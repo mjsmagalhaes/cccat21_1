@@ -1,8 +1,7 @@
 import Debug from "debug";
-import { Account } from "../../entity/Account";
-import { Asset } from "../../entity/Asset";
+import { Account, Asset } from "../../entity";
+import { AssetDAO } from "./..";
 import { ConfigService } from "../../service/ConfigService";
-import { AssetDAO } from "./../AssetDAO";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("db:asset");
@@ -10,7 +9,7 @@ const debug = Debug("db:asset");
 export class AssetDAODatabase implements AssetDAO {
     static connection = ConfigService.getConnection();
 
-    create(account: Account): Promise<{ accountId: string }> {
+    create(account: Asset): Promise<Asset> {
         throw new Error("Method not implemented.");
     }
 
@@ -18,7 +17,7 @@ export class AssetDAODatabase implements AssetDAO {
         throw new Error("Method not implemented.");
     }
 
-    delete(account: Account): void {
+    delete(account: string): void {
         throw new Error("Method not implemented.");
     }
 
@@ -28,9 +27,9 @@ export class AssetDAODatabase implements AssetDAO {
             { asset_id: assetId }
         );
 
-        debug("asset_id:", assetId, "asset:", asset);
+        debug("get:", assetId, asset);
 
-        if (asset == null) throw new Error(ERROR_MESSAGE.ASSET_NOT_FOUND);
+        if (!asset) throw new Error(ERROR_MESSAGE.ASSET_NOT_FOUND);
 
         return asset;
     }
