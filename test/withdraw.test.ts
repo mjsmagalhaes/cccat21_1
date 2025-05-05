@@ -8,7 +8,7 @@ afterAll(async () => { });
 
 test("Não deve retirar se a conta não existir", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/withdraw", {
-        accountId: "123",
+        accountId: "1fb6e901-f4de-4653-80e7-07c207073f62",
     });
 
     const outputWithdraw = responseDeposit.data;
@@ -25,7 +25,7 @@ test("Não deve retirar se o asset não existir", async () => {
     expect(outputWithdraw.error).toBe("Asset not found.");
 });
 
-test("Não deve retirar se a quantidade for menor que zero", async () => {
+test("Não deve retirar se a quantidade for menor ou igual a zero", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/withdraw", {
         accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
         assetId: "BTC",
@@ -55,6 +55,5 @@ test("Deve fazer uma retirada", async () => {
     });
 
     const outputWithdraw = responseDeposit.data;
-    console.log(outputWithdraw);
     expect(outputWithdraw.status).toBe("ok");
 });

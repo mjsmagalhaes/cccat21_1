@@ -3,7 +3,6 @@ import Debug from "debug";
 import { Signup } from "../application/Signup";
 import { AccountDAODatabase } from "../DAO/DB/AccountDAODatabase";
 import { Account } from "../entity/Account";
-import { ErrorService } from "../service/ErrorService";
 
 const app = express();
 app.use(express.json());
@@ -25,7 +24,7 @@ router.post("/", async (req: Request, res: Response) => {
         reportError(error);
 
         if (error instanceof Error)
-            ErrorService.errorResponse(res, error.message);
+            res.status(422).json({ error: error.message });
 
         return;
     }

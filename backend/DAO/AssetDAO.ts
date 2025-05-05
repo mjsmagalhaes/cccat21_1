@@ -5,5 +5,5 @@ export interface AssetDAO {
     create(account: Account): Promise<{ accountId: string }>;
     update(account: Account): void;
     delete(account: Account): void;
-    getAsset(assetId: string): Promise<Asset>;
+    get(assetId: string): Promise<Asset>;
 }

@@ -8,7 +8,10 @@ afterAll(async () => { });
 
 test("Não deve criar a ordem se a conta não existir", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/place_order", {
-        accountId: "123",
+        accountId: "1fb6e901-f4de-4653-80e7-07c207073f62",
+        marketId: "BTC/USD",
+        quantity: 1,
+        price: 200
     });
 
     const outputDeposit = responseDeposit.data;
@@ -18,7 +21,10 @@ test("Não deve criar a ordem se a conta não existir", async () => {
 test("Não deve criar a ordem se o asset não existir", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/place_order", {
         accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
-        marketId: "",
+        marketId: "BTç/USD",
+        side: "sell",
+        quantity: 1,
+        price: 200
     });
 
     const outputWithdraw = responseDeposit.data;
@@ -57,12 +63,12 @@ test("Não deve criar a ordem se não informação de quantidade", async () => {
     expect(outputWithdraw.error).toBe("Order missing information.");
 });
 
-test("Não deve criar a ordem se não há saldo disponível", async () => {
+test("Não deve criar a ordem se não há saldo disponível BUY", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/place_order", {
         accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
         marketId: "BTC/USD",
-        quantity: 1,
         side: 'buy',
+        quantity: 1,
         price: 200
     });
 
@@ -70,15 +76,15 @@ test("Não deve criar a ordem se não há saldo disponível", async () => {
     expect(outputWithdraw.error).toBe("Insufficient funds.");
 });
 
-test("Não deve criar a ordem se não há saldo disponível", async () => {
+test("Não deve criar a ordem se não há saldo disponível SELL", async () => {
     const responseDeposit = await axios.post("http://localhost:3000/place_order", {
         accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
         marketId: "BTC/USD",
-        quantity: 1,
         side: 'sell',
+        quantity: 1200,
         price: 200
     });
 
     const outputWithdraw = responseDeposit.data;
-    expect(responseDeposit.status).toBe(200);
+    expect(outputWithdraw.error).toBe("Insufficient funds.");
 });

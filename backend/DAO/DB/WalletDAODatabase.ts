@@ -4,8 +4,11 @@ import { Wallet } from "./../../entity/Wallet";
 import { ConfigService } from "../../service/ConfigService";
 import { Account } from "../../entity/Account";
 import { Asset } from "../../entity/Asset";
+import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 export interface WalletDAO {
+    getWallet(account: Account, asset: Asset): Promise<Wallet>;
+
     createOrUpdate(
         account: Account,
         asset: Asset,
@@ -56,6 +59,9 @@ export class WalletDAODatabase implements WalletDAO {
 
     async createOrUpdate(account: Account, asset: Asset, quantity: number) {
         const wallet = await this.getWallet(account, asset);
+
+        if (wallet.quantity + quantity < 0)
+            throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
         await this.update(
             account.account_id,

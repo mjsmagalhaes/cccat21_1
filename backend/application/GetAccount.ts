@@ -1,8 +1,8 @@
 import { AccountDAO } from "../DAO/AccountDAO";
 
 export class GetAccount {
-    constructor(private readonly account: AccountDAO) {}
+    constructor(private readonly account: AccountDAO) { }
     async execute(accountId: string) {
-        return await this.account.getAccount(accountId);
+        return await this.account.get(accountId);
     }
 }

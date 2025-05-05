@@ -1,5 +1,3 @@
-import { Response } from "express";
-
 export enum ERROR_MESSAGE {
     INVALID_NAME = "Invalid name",
     INVALID_EMAIL = "Invalid email",
@@ -13,12 +11,3 @@ export enum ERROR_MESSAGE {
     BAD_DEPOSIT_REQUEST = "Bad Deposit request.",
 }
 
-export class ErrorService {
-    static throwError(message: string): never {
-        throw new Error(message);
-    }
-
-    static errorResponse(response: Response, message: string) {
-        response.status(422).json({ error: message });
-    }
-}

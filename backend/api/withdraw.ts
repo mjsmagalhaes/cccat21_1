@@ -1,45 +1,32 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
-import { Database } from "../../src/services/db";
-import { errorResponse } from "../../src/services/error";
+import { Withdraw } from "../application/Withdraw";
+import { AccountDAODatabase, WalletDAODatabase } from "../DAO/DB";
+import { AssetDAODatabase } from "../DAO/DB/AssetDAODatabase";
 
-const app = express();
-app.use(express.json());
 const router = express.Router();
-
 const debug = Debug("withdraw");
+const reportError = Debug("error");
+
+const withdraw = new Withdraw(new AccountDAODatabase(), new AssetDAODatabase(), new WalletDAODatabase());
 
 router.post("/", async (req: Request, res: Response) => {
     const input = req.body;
-    const db = new Database();
     const quantity = parseFloat(input.quantity);
 
-    const account = await db.getAccount(input.accountId);
-    if (account == null) return errorResponse(res, "ACCOUNT_NOT_FOUND");
+    try {
+        debug(input);
+        const account = await withdraw.execute(input.accountId, input.assetId, quantity);
+        debug(account);
+        res.json(account);
+    } catch (error) {
+        reportError(error);
 
-    const asset = await db.getAsset(input.assetId);
-    if (asset == null) return errorResponse(res, "ASSET_NOT_FOUND");
+        if (error instanceof Error)
+            res.status(422).json({ error: error.message });
 
-    if (!input.quantity || isNaN(quantity) || quantity < 0)
-        return errorResponse(res, "BAD_WITHDRAW_REQUEST");
-
-    const wallet = await db.getWallet(account, asset);
-    if (wallet.quantity < quantity)
-        return errorResponse(res, "INSUFFICIENT_FUNDS");
-
-    debug(`Wallet ${account.account_id}:${asset.asset_id} found. Updating ...`);
-    await db.updateWallet(
-        account.account_id,
-        asset.asset_id,
-        wallet.quantity - quantity
-    );
-
-    const new_wallet = await db.getWallet(account, asset);
-    res.json({
-        status: "ok",
-        quantity: new_wallet.quantity,
-        asset_id: new_wallet.asset_id,
-    });
-});
+        return;
+    }
+})
 
 export default router;

@@ -4,5 +4,5 @@ export interface AccountDAO {
     create(account: Account): Promise<{ accountId: string }>;
     update(account: Account): void;
     delete(account: Account): void;
-    getAccount(accountId: string): Promise<Account>;
+    get(accountId: string): Promise<Account>;
 }
