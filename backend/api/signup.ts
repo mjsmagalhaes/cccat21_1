@@ -1,12 +1,10 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
-import { Signup } from "../application/Signup";
 import { DAODatabaseFactory } from "../DAO/DB";
+import { AccountService } from "../application/account";
 
-const app = express();
-app.use(express.json());
 const router = express.Router();
-const signup = new Signup(new DAODatabaseFactory());
+const account = new AccountService(new DAODatabaseFactory());
 
 const debug = Debug("signup");
 const reportError = Debug("error");
@@ -16,9 +14,9 @@ router.post("/", async (req: Request, res: Response) => {
 
     try {
         debug(input);
-        const account = await signup.execute(input);
-        debug(account);
-        res.json(account);
+        const accountOutput = await account.signup.execute(input);
+        debug(accountOutput);
+        res.json(accountOutput);
     } catch (error) {
         reportError(error);
 

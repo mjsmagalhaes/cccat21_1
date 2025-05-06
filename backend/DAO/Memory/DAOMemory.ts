@@ -121,16 +121,21 @@ export class OrderDAOMemory extends DAOMemory<Order> implements OrderDAO {
 }
 
 export class DAOMemoryFactory implements DAOAbstractFactory {
+    private static readonly account = new AccountDAOMemory();
+    private static readonly asset = new AssetDAOMemory();
+    private static readonly wallet = new WalletDAOMemory();
+    private static readonly order = new OrderDAOMemory();
+
     createAccountDAO(): AccountDAO {
-        return new AccountDAOMemory();
+        return DAOMemoryFactory.account;
     }
     createAssetDAO(): AssetDAO {
-        return new AssetDAOMemory();
+        return DAOMemoryFactory.asset;
     }
     createWalletDAO(): WalletDAO {
-        return new WalletDAOMemory();
+        return DAOMemoryFactory.wallet;
     }
     createOrderDAO(): OrderDAO {
-        return new OrderDAOMemory();
+        return DAOMemoryFactory.order;
     }
 }

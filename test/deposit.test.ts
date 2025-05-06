@@ -1,64 +1,48 @@
-import axios from "axios";
+import { Signup } from "./../backend/application/account/Signup";
 import { ConfigService } from "../backend/service/ConfigService";
 import { Deposit } from "../backend/application/Deposit";
-import { AccountDAODatabase, WalletDAODatabase } from "../backend/DAO/DB";
-import { AssetDAODatabase } from "../backend/DAO/DB/AssetDAODatabase";
-
-axios.defaults.validateStatus = () => true;
+import { DAOMemoryFactory } from "../backend/DAO/Memory/DAOMemory";
 
 const account = ConfigService.getTestAccount();
 const btc = ConfigService.getTestAsset("btc");
-const deposit = new Deposit(
-    new AccountDAODatabase(),
-    new AssetDAODatabase(),
-    new WalletDAODatabase()
-);
+const factory = new DAOMemoryFactory();
+const deposit = new Deposit(factory);
+const signup = new Signup(factory);
 
-beforeAll(() => {});
+beforeAll(() => {
+    factory.createAssetDAO().create(btc);
+});
 
 afterAll(() => {});
 
 test("Não deve depositar se a conta não existir", async () => {
-    const responseDeposit = await axios.post("http://localhost:3000/deposit", {
-        accountId: "1fb6e901-f4de-4653-80e7-07c207073f92",
-        assetId: "BTC",
-        quantity: 1,
-    });
+    expect(async () => {
+        await deposit.execute(account.id, btc.ticker, 1);
+    }).rejects.toThrow("Entity not found.");
 
-    const outputDeposit = responseDeposit.data;
-    expect(outputDeposit.error).toBe("Account not found.");
+    signup.execute(account);
+
+    // expect(outputDeposit.error).toBe("Account not found.");
 });
 
 test("Não deve depositar se o asset não existir", async () => {
-    const responseDeposit = await axios.post("http://localhost:3000/deposit", {
-        accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
-        assetId: "",
-        quantity: 1,
-    });
-
-    const outputDeposit = responseDeposit.data;
-    expect(outputDeposit.error).toBe("Asset not found.");
+    expect(async () => {
+        await deposit.execute(account.id, "", 1);
+    }).rejects.toThrow("Asset not found.");
 });
 
 test("Não deve depositar se a quantidade for menor que zero", async () => {
-    const responseDeposit = await axios.post("http://localhost:3000/deposit", {
-        accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
-        assetId: "BTC",
-        quantity: 0,
-    });
-
-    const outputDeposit = responseDeposit.data;
-    expect(outputDeposit.error).toBe("Bad Deposit request.");
+    expect(async () => {
+        await deposit.execute(account.id, btc.ticker, 0);
+    }).rejects.toThrow("Bad Deposit request.");
 });
 
 test("Deve criar um deposito", async () => {
-    const responseDeposit = await axios.post("http://localhost:3000/deposit", {
-        accountId: "1fb6e901-f4de-4653-80e7-07c207073f61",
-        assetId: "BTC",
-        quantity: 100,
-    });
+    const outputDeposit = await deposit.execute(account.id, btc.ticker, 1);
 
-    const outputDeposit = responseDeposit.data;
-    console.log(outputDeposit);
-    expect(outputDeposit.status).toBe("ok");
+    expect(outputDeposit).toBeDefined();
+    expect(outputDeposit).toHaveProperty("id");
+    expect(outputDeposit).toHaveProperty("account_id", account.id);
+    expect(outputDeposit).toHaveProperty("asset_id", btc.id);
+    expect(outputDeposit).toHaveProperty("quantity", 1);
 });

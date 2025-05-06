@@ -1,4 +1,4 @@
-import { AccountDAO, DAOAbstractFactory } from "../DAO";
+import { AccountDAO, DAOAbstractFactory } from "../../DAO";
 
 export class GetAccount {
     private readonly account: AccountDAO;

@@ -119,7 +119,7 @@ test("Não deve criar a ordem se não há saldo disponível SELL", async () => {
     expect(outputWithdraw.error).toBe("Insufficient funds.");
 });
 
-test.only("Deve criar a ordem", async () => {
+test("Deve criar a ordem", async () => {
     const handler = {
         message: function (ws2: Buffer) {
             let obj = JSON.parse(ws2.toString());

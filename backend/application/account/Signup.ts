@@ -1,8 +1,8 @@
 import Debug from "debug";
-import { AccountDAO, DAOAbstractFactory } from "../DAO";
-import { Account } from "../entity";
-import { ValidationService } from "../service/ValidationService";
-import { ERROR_MESSAGE } from "../service/ErrorService";
+import { AccountDAO, DAOAbstractFactory } from "../../DAO";
+import { Account } from "../../entity";
+import { ValidationService } from "../../service/ValidationService";
+import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("signup");
 

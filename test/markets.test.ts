@@ -4,10 +4,11 @@ import { GetDepth } from "../backend/application/GetDepth";
 import {
     AccountDAOMemory,
     AssetDAOMemory,
+    DAOMemoryFactory,
     OrderDAOMemory,
     WalletDAOMemory,
 } from "../backend/DAO/Memory/DAOMemory";
-import { Signup } from "../backend/application/Signup";
+import { Signup } from "../backend/application/account/Signup";
 import { Deposit } from "../backend/application/Deposit";
 
 import Debug from "debug";
@@ -19,19 +20,15 @@ const testAccount = ConfigService.getTestAccount();
 const btc = ConfigService.getTestAsset("btc");
 const usd = ConfigService.getTestAsset("usd");
 
-const accoutDao = new AccountDAOMemory();
-const assetDao = new AssetDAOMemory();
-const walletDao = new WalletDAOMemory();
-const orderDao = new OrderDAOMemory();
-
-const account = new Signup(accoutDao);
-const deposit = new Deposit(accoutDao, assetDao, walletDao);
-const placeOrder = new PlaceOrder(accoutDao, assetDao, walletDao, orderDao);
-const markets = new GetDepth(assetDao, orderDao);
+const factory = new DAOMemoryFactory();
+const account = new Signup(factory);
+const deposit = new Deposit(factory);
+const placeOrder = new PlaceOrder(factory);
+const markets = new GetDepth(factory);
 
 beforeAll(() => {
-    assetDao.create(btc);
-    assetDao.create(usd);
+    factory.createAssetDAO().create(btc);
+    factory.createAssetDAO().create(usd);
 });
 
 afterAll(() => {});
