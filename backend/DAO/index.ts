@@ -23,14 +23,22 @@ export interface WalletDAO {
 }
 
 export interface OrderDAO {
-    create(
+    createOrder(
         account: Account,
         asset: Asset,
         paymentAsset: Asset,
         side: string,
         quantity: number,
         price: number
-    ): void;
+    ): Promise<Order>;
 
     get(order_id: string): Promise<Order>;
+    getAssetOrders(asset: Asset): Promise<Order[]>;
+}
+
+export interface DAOAbstractFactory {
+    createAccountDAO(): AccountDAO;
+    createAssetDAO(): AssetDAO;
+    createWalletDAO(): WalletDAO;
+    createOrderDAO(): OrderDAO;
 }

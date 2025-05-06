@@ -6,7 +6,18 @@ import { OrderDAO } from "./..";
 const debug = Debug("db:order");
 
 export class OrderDAODatabase extends DAODatabase implements OrderDAO {
-    async create(
+    async getAssetOrders(asset: Asset): Promise<Order[]> {
+        const orders = await this.getConnection().query(
+            "select * from ccca.order where asset_id = ${asset_id} sort by price desc",
+            {
+                asset_id: asset.id,
+            }
+        );
+
+        return orders;
+    }
+
+    async createOrder(
         account: Account,
         asset: Asset,
         paymentAsset: Asset,
@@ -18,7 +29,7 @@ export class OrderDAODatabase extends DAODatabase implements OrderDAO {
         debug("new order", order_id);
 
         await this.getConnection().query(
-            "insert into ccca.order(order_id,account_id,asset_id,asset_payment_id,side, quantity, price) values (${order_id},${account_id},${asset_id},${asset_payment_id},${side},${quantity},${price})",
+            "insert into ccca.order(id,account_id,asset_id,asset_payment_id,side, quantity, price) values (${order_id},${account_id},${asset_id},${asset_payment_id},${side},${quantity},${price})",
             {
                 order_id,
                 account_id: account.id,
@@ -35,7 +46,7 @@ export class OrderDAODatabase extends DAODatabase implements OrderDAO {
 
     async get(order_id: string): Promise<Order> {
         const [order] = await this.getConnection().query(
-            "select * from ccca.order where order_id = ${order_id}",
+            "select * from ccca.order where id = ${order_id}",
             { order_id }
         );
 

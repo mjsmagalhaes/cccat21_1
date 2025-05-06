@@ -1,21 +1,13 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
 import { Withdraw } from "../application/Withdraw";
-import {
-    AccountDAODatabase,
-    AssetDAODatabase,
-    WalletDAODatabase,
-} from "../DAO/DB";
+import { DAODatabaseFactory } from "../DAO/DB";
 
 const router = express.Router();
 const debug = Debug("withdraw");
 const reportError = Debug("error");
 
-const withdraw = new Withdraw(
-    new AccountDAODatabase(),
-    new AssetDAODatabase(),
-    new WalletDAODatabase()
-);
+const withdraw = new Withdraw(new DAODatabaseFactory());
 
 router.post("/", async (req: Request, res: Response) => {
     const input = req.body;

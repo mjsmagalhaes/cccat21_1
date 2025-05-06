@@ -1,12 +1,12 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
 import { Signup } from "../application/Signup";
-import { AccountDAODatabase } from "../DAO/DB";
+import { DAODatabaseFactory } from "../DAO/DB";
 
 const app = express();
 app.use(express.json());
 const router = express.Router();
-const signup = new Signup(new AccountDAODatabase());
+const signup = new Signup(new DAODatabaseFactory());
 
 const debug = Debug("signup");
 const reportError = Debug("error");

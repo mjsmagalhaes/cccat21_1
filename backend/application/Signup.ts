@@ -1,5 +1,5 @@
 import Debug from "debug";
-import { AccountDAO } from "../DAO";
+import { AccountDAO, DAOAbstractFactory } from "../DAO";
 import { Account } from "../entity";
 import { ValidationService } from "../service/ValidationService";
 import { ERROR_MESSAGE } from "../service/ErrorService";
@@ -7,7 +7,11 @@ import { ERROR_MESSAGE } from "../service/ErrorService";
 const debug = Debug("signup");
 
 export class Signup {
-    constructor(private readonly account: AccountDAO) {}
+    private readonly account: AccountDAO;
+
+    constructor(factory: DAOAbstractFactory) {
+        this.account = factory.createAccountDAO();
+    }
 
     public async execute(account: Account) {
         debug("Execute");

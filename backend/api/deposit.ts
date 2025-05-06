@@ -4,6 +4,7 @@ import { Deposit } from "../application/Deposit";
 import {
     AccountDAODatabase,
     AssetDAODatabase,
+    DAODatabaseFactory,
     WalletDAODatabase,
 } from "../DAO/DB";
 
@@ -11,11 +12,7 @@ const router = express.Router();
 const debug = Debug("deposit");
 const reportError = Debug("error");
 
-const deposit = new Deposit(
-    new AccountDAODatabase(),
-    new AssetDAODatabase(),
-    new WalletDAODatabase()
-);
+const deposit = new Deposit(new DAODatabaseFactory());
 
 router.post("/", async (req: Request, res: Response) => {
     const input = req.body ?? {};

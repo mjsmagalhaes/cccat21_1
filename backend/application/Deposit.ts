@@ -1,21 +1,25 @@
-import { AccountDAO, AssetDAO, WalletDAO } from "../DAO";
+import { AccountDAO, AssetDAO, DAOAbstractFactory, WalletDAO } from "../DAO";
 import { Wallet } from "../entity";
 import { ERROR_MESSAGE } from "../service/ErrorService";
 
 export class Deposit {
-    constructor(
-        private readonly account: AccountDAO,
-        private readonly asset: AssetDAO,
-        private readonly wallet: WalletDAO
-    ) {}
+    private readonly account: AccountDAO;
+    private readonly asset: AssetDAO;
+    private readonly wallet: WalletDAO;
+
+    constructor(factory: DAOAbstractFactory) {
+        this.account = factory.createAccountDAO();
+        this.asset = factory.createAssetDAO();
+        this.wallet = factory.createWalletDAO();
+    }
 
     async execute(
         accountId: string,
-        assetId: string,
+        assetTicker: string,
         quantity: number
     ): Promise<Wallet> {
         const account = await this.account.get(accountId);
-        const asset = await this.asset.get(assetId);
+        const asset = await this.asset.get(assetTicker);
 
         if (isNaN(quantity) || quantity <= 0)
             throw new Error(ERROR_MESSAGE.BAD_DEPOSIT_REQUEST);

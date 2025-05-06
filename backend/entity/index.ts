@@ -19,4 +19,11 @@ export interface Wallet extends IEntity {
     quantity: number;
 }
 
-export interface Order extends IEntity {}
+export interface Order extends IEntity {
+    price: number;
+    quantity: number;
+    side: string;
+    account_id: string;
+    asset_id: string;
+    asset_payment_id: string;
+}

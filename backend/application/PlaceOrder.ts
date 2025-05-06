@@ -1,8 +1,16 @@
 import Debug from "debug";
-import { AccountDAO, AssetDAO, WalletDAO, OrderDAO } from "../DAO";
+import {
+    AccountDAO,
+    AssetDAO,
+    WalletDAO,
+    OrderDAO,
+    DAOAbstractFactory,
+} from "../DAO";
 import { ERROR_MESSAGE } from "../service/ErrorService";
+import { Subject } from "rxjs";
 
 const debug = Debug("place_order");
+export const newOrders = new Subject();
 
 export interface PlaceOrderParam {
     marketId: string;
@@ -13,12 +21,17 @@ export interface PlaceOrderParam {
 }
 
 export class PlaceOrder {
-    constructor(
-        private readonly account: AccountDAO,
-        private readonly asset: AssetDAO,
-        private readonly wallet: WalletDAO,
-        private readonly order: OrderDAO
-    ) {}
+    private readonly account: AccountDAO;
+    private readonly asset: AssetDAO;
+    private readonly wallet: WalletDAO;
+    private readonly order: OrderDAO;
+
+    constructor(factory: DAOAbstractFactory) {
+        this.account = factory.createAccountDAO();
+        this.asset = factory.createAssetDAO();
+        this.wallet = factory.createWalletDAO();
+        this.order = factory.createOrderDAO();
+    }
 
     convert(input: any) {
         if (!input) throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST);
@@ -77,7 +90,7 @@ export class PlaceOrder {
         if (side == "sell" && assetWallet.quantity < param.quantity)
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
-        return await this.order.create(
+        let order = await this.order.createOrder(
             account,
             asset,
             paymentAsset,
@@ -85,5 +98,9 @@ export class PlaceOrder {
             param.quantity,
             param.price
         );
+
+        newOrders.next("");
+
+        return order;
     }
 }
