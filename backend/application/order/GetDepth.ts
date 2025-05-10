@@ -1,7 +1,7 @@
-import { AssetDAO, DAOAbstractFactory, OrderDAO } from "../DAO";
-import { Order } from "../entity";
+import { AssetDAO, DAOAbstractFactory, OrderDAO } from "../../DAO";
+import { OrderVO } from "../../entity";
 
-export type OrderBook = { [key: string]: number };
+export type OrderBook = { [key: string]: OrderVO[] };
 
 export class GetDepth {
     private readonly asset: AssetDAO;
@@ -18,17 +18,15 @@ export class GetDepth {
         return this.groupWithPrecision(orders, 2);
     }
 
-    groupWithPrecision(orders: Order[], precision: number): OrderBook {
+    groupWithPrecision(orders: OrderVO[], precision: number): OrderBook {
         const base = 10 ** precision;
         const lower = (price: number) => price - (price % base);
 
         const grouped = orders.reduce((acc, order) => {
-            const lowerBound = lower(order.price);
-            const upperBound = lowerBound + base;
-            const key = `${lowerBound}-${upperBound}`;
+            let key = lower(order.price).toString();
 
-            if (!acc[key]) acc[key] = 0;
-            acc[key] += order.quantity;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(order);
 
             return acc;
         }, {} as OrderBook);

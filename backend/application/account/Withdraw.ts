@@ -1,6 +1,6 @@
 import Debug from "debug";
-import { AccountDAO, AssetDAO, DAOAbstractFactory, WalletDAO } from "../DAO";
-import { ERROR_MESSAGE } from "../service/ErrorService";
+import { AccountDAO, AssetDAO, DAOAbstractFactory, WalletDAO } from "../../DAO";
+import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("withdraw");
 

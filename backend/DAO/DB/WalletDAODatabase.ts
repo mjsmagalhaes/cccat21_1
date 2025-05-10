@@ -1,6 +1,6 @@
 import Debug from "debug";
 
-import { Account, Asset, Wallet } from "../../entity";
+import { AccountVO, AssetVO, WalletVO } from "../../entity";
 import { DAODatabase } from "./DAODatabase";
 import { WalletDAO } from "./..";
 
@@ -9,7 +9,7 @@ import { ERROR_MESSAGE } from "../../service/ErrorService";
 const debug = Debug("db:wallet");
 
 export class WalletDAODatabase extends DAODatabase implements WalletDAO {
-    async getWallet(account: Account, asset: Asset): Promise<Wallet> {
+    async getWallet(account: AccountVO, asset: AssetVO): Promise<WalletVO> {
         debug("get", account, asset);
 
         let [wallet] = await this.getConnection().query(
@@ -23,7 +23,7 @@ export class WalletDAODatabase extends DAODatabase implements WalletDAO {
         }
 
         debug("get:", wallet);
-        (wallet as Wallet).quantity = parseFloat(wallet.quantity);
+        (wallet as WalletVO).quantity = parseFloat(wallet.quantity);
 
         return wallet;
     }
@@ -48,7 +48,7 @@ export class WalletDAODatabase extends DAODatabase implements WalletDAO {
         );
     }
 
-    async createOrUpdate(account: Account, asset: Asset, quantity: number) {
+    async createOrUpdate(account: AccountVO, asset: AssetVO, quantity: number) {
         const wallet = await this.getWallet(account, asset);
 
         if (wallet.quantity + quantity < 0)

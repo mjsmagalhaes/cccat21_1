@@ -1,6 +1,6 @@
-import { AccountDAO, AssetDAO, DAOAbstractFactory, WalletDAO } from "../DAO";
-import { Wallet } from "../entity";
-import { ERROR_MESSAGE } from "../service/ErrorService";
+import { AccountDAO, AssetDAO, DAOAbstractFactory, WalletDAO } from "../../DAO";
+import { WalletVO } from "../../entity";
+import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 export class Deposit {
     private readonly account: AccountDAO;
@@ -17,7 +17,7 @@ export class Deposit {
         accountId: string,
         assetTicker: string,
         quantity: number
-    ): Promise<Wallet> {
+    ): Promise<WalletVO> {
         const account = await this.account.get(accountId);
         const asset = await this.asset.get(assetTicker);
 

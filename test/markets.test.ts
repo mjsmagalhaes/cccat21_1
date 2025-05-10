@@ -1,17 +1,9 @@
-import { PlaceOrder } from "./../backend/application/PlaceOrder";
+import { AccountService } from "./../backend/application/account/index";
 import { ConfigService } from "../backend/service/ConfigService";
-import { GetDepth } from "../backend/application/GetDepth";
-import {
-    AccountDAOMemory,
-    AssetDAOMemory,
-    DAOMemoryFactory,
-    OrderDAOMemory,
-    WalletDAOMemory,
-} from "../backend/DAO/Memory/DAOMemory";
-import { Signup } from "../backend/application/account/Signup";
-import { Deposit } from "../backend/application/Deposit";
+import { DAOMemoryFactory } from "../backend/DAO/Memory/DAOMemory";
 
 import Debug from "debug";
+import { OrderService } from "../backend/application/order";
 
 Debug.disable();
 Debug.enable("place_order,withdraw,deposit,db:*,error");
@@ -21,10 +13,8 @@ const btc = ConfigService.getTestAsset("btc");
 const usd = ConfigService.getTestAsset("usd");
 
 const factory = new DAOMemoryFactory();
-const account = new Signup(factory);
-const deposit = new Deposit(factory);
-const placeOrder = new PlaceOrder(factory);
-const markets = new GetDepth(factory);
+const accountService = new AccountService(factory);
+const orderService = new OrderService(factory);
 
 beforeAll(() => {
     factory.createAssetDAO().create(btc);
@@ -34,10 +24,12 @@ beforeAll(() => {
 afterAll(() => {});
 
 test("Retorna book de um asset", async () => {
-    const { accountId } = await account.execute(testAccount);
-    await deposit.execute(accountId, btc.ticker, 100);
-    await deposit.execute(accountId, usd.ticker, 1000000);
-    await placeOrder.execute(accountId, {
+    const { accountId } = await accountService.signup.execute(testAccount);
+    await accountService.getAccount.execute(accountId);
+    await accountService.deposit.execute(accountId, btc.ticker, 100);
+    await accountService.deposit.execute(accountId, usd.ticker, 1000000);
+
+    await orderService.placeOrder.execute(accountId, {
         accountId,
         marketId: "BTC/USD",
         side: "buy",
@@ -45,7 +37,7 @@ test("Retorna book de um asset", async () => {
         price: 10000,
     });
 
-    await placeOrder.execute(accountId, {
+    await orderService.placeOrder.execute(accountId, {
         accountId,
         marketId: "BTC/USD",
         side: "buy",
@@ -53,7 +45,7 @@ test("Retorna book de um asset", async () => {
         price: 10001,
     });
 
-    const orderBook = await markets.execute("BTC");
+    const orderBook = await orderService.getDepth.execute("BTC");
     expect(orderBook).toBeDefined();
     expect(orderBook["10000-10100"]).toBeDefined();
     expect(orderBook["10000-10100"]).toEqual(20);

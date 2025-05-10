@@ -1,12 +1,12 @@
 import Debug from "debug";
-import { Account, Asset, Order } from "../../entity";
+import { AccountVO, AssetVO, OrderVO } from "../../entity";
 import { DAODatabase } from "./DAODatabase";
 import { OrderDAO } from "./..";
 
 const debug = Debug("db:order");
 
 export class OrderDAODatabase extends DAODatabase implements OrderDAO {
-    async getAssetOrders(asset: Asset): Promise<Order[]> {
+    async getAssetOrders(asset: AssetVO): Promise<OrderVO[]> {
         const orders = await this.getConnection().query(
             "select * from ccca.order where asset_id = ${asset_id} sort by price desc",
             {
@@ -18,13 +18,13 @@ export class OrderDAODatabase extends DAODatabase implements OrderDAO {
     }
 
     async createOrder(
-        account: Account,
-        asset: Asset,
-        paymentAsset: Asset,
+        account: AccountVO,
+        asset: AssetVO,
+        paymentAsset: AssetVO,
         side: string,
         quantity: number,
         price: number
-    ): Promise<Order> {
+    ): Promise<OrderVO> {
         let order_id = crypto.randomUUID();
         debug("new order", order_id);
 
@@ -44,7 +44,7 @@ export class OrderDAODatabase extends DAODatabase implements OrderDAO {
         return await this.get(order_id);
     }
 
-    async get(order_id: string): Promise<Order> {
+    async get(order_id: string): Promise<OrderVO> {
         const [order] = await this.getConnection().query(
             "select * from ccca.order where id = ${order_id}",
             { order_id }

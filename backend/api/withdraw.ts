@@ -1,13 +1,14 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
-import { Withdraw } from "../application/Withdraw";
 import { DAODatabaseFactory } from "../DAO/DB";
+import { AccountService } from "../application/account";
 
 const router = express.Router();
 const debug = Debug("withdraw");
 const reportError = Debug("error");
 
-const withdraw = new Withdraw(new DAODatabaseFactory());
+// const withdraw = new Withdraw(new DAODatabaseFactory());
+const account = new AccountService(new DAODatabaseFactory());
 
 router.post("/", async (req: Request, res: Response) => {
     const input = req.body;
@@ -15,13 +16,13 @@ router.post("/", async (req: Request, res: Response) => {
 
     try {
         debug(input);
-        const account = await withdraw.execute(
+        const accountOutput = await account.withdraw.execute(
             input.accountId,
             input.assetId,
             quantity
         );
-        debug(account);
-        res.json(account);
+        debug(accountOutput);
+        res.json(accountOutput);
     } catch (error) {
         reportError(error);
 

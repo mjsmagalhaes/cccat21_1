@@ -1,6 +1,6 @@
 import Debug from "debug";
 import { AccountDAO, DAOAbstractFactory } from "../../DAO";
-import { Account } from "../../entity";
+import { AccountVO } from "../../entity";
 import { ValidationService } from "../../service/ValidationService";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
 
@@ -13,7 +13,7 @@ export class Signup {
         this.account = factory.createAccountDAO();
     }
 
-    public async execute(account: Account) {
+    public async execute(account: AccountVO) {
         debug("Execute");
         if (!ValidationService.isValidName(account.name))
             throw new Error(ERROR_MESSAGE.INVALID_NAME);

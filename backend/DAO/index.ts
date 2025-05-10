@@ -1,39 +1,39 @@
-import { Account, Asset, Order, Wallet } from "../entity";
+import { AccountVO, AssetVO, OrderVO, WalletVO } from "../entity";
 
 export interface AccountDAO {
-    create(account: Account): Promise<Account>;
+    create(account: AccountVO): Promise<AccountVO>;
     delete(accountId: string): void;
-    get(accountId: string): Promise<Account>;
+    get(accountId: string): Promise<AccountVO>;
 }
 
 export interface AssetDAO {
-    create(asset: Asset): Promise<Asset>;
+    create(asset: AssetVO): Promise<AssetVO>;
     delete(assetId: string): void;
-    get(assetId: string): Promise<Asset>;
+    get(assetId: string): Promise<AssetVO>;
 }
 
 export interface WalletDAO {
-    getWallet(account: Account, asset: Asset): Promise<Wallet>;
+    getWallet(account: AccountVO, asset: AssetVO): Promise<WalletVO>;
 
     createOrUpdate(
-        account: Account,
-        asset: Asset,
+        account: AccountVO,
+        asset: AssetVO,
         quantity: number
-    ): Promise<Wallet>;
+    ): Promise<WalletVO>;
 }
 
 export interface OrderDAO {
     createOrder(
-        account: Account,
-        asset: Asset,
-        paymentAsset: Asset,
+        account: AccountVO,
+        asset: AssetVO,
+        paymentAsset: AssetVO,
         side: string,
         quantity: number,
         price: number
-    ): Promise<Order>;
+    ): Promise<OrderVO>;
 
-    get(order_id: string): Promise<Order>;
-    getAssetOrders(asset: Asset): Promise<Order[]>;
+    get(order_id: string): Promise<OrderVO>;
+    getAssetOrders(asset: AssetVO): Promise<OrderVO[]>;
 }
 
 export interface DAOAbstractFactory {

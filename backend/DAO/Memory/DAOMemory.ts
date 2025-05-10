@@ -1,6 +1,6 @@
 import { DAOAbstractFactory } from "./../index";
 import Debug from "debug";
-import { IEntity, Account, Asset, Wallet, Order } from "../../entity";
+import { IEntity, AccountVO, AssetVO, WalletVO, OrderVO } from "../../entity";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
 import { AccountDAO, AssetDAO, OrderDAO, WalletDAO } from "./../";
 
@@ -46,11 +46,11 @@ export class DAOMemory<T extends IEntity> {
 }
 
 export class AccountDAOMemory
-    extends DAOMemory<Account>
+    extends DAOMemory<AccountVO>
     implements AccountDAO {}
 
-export class AssetDAOMemory extends DAOMemory<Asset> implements AssetDAO {
-    async get(id: string): Promise<Asset> {
+export class AssetDAOMemory extends DAOMemory<AssetVO> implements AssetDAO {
+    async get(id: string): Promise<AssetVO> {
         debug("get", id);
         let asset = this.getData().find((el) => el.ticker === id);
         if (!asset) throw new Error(ERROR_MESSAGE.ASSET_NOT_FOUND);
@@ -59,8 +59,8 @@ export class AssetDAOMemory extends DAOMemory<Asset> implements AssetDAO {
     }
 }
 
-export class WalletDAOMemory extends DAOMemory<Wallet> implements WalletDAO {
-    async getWallet(account: Account, asset: Asset): Promise<Wallet> {
+export class WalletDAOMemory extends DAOMemory<WalletVO> implements WalletDAO {
+    async getWallet(account: AccountVO, asset: AssetVO): Promise<WalletVO> {
         let wallet = this.getData().find(
             (el) => el.account_id === account.id && el.asset_id === asset.id
         );
@@ -78,10 +78,10 @@ export class WalletDAOMemory extends DAOMemory<Wallet> implements WalletDAO {
     }
 
     async createOrUpdate(
-        account: Account,
-        asset: Asset,
+        account: AccountVO,
+        asset: AssetVO,
         quantity: number
-    ): Promise<Wallet> {
+    ): Promise<WalletVO> {
         const wallet = await this.getWallet(account, asset);
 
         wallet.quantity += quantity;
@@ -91,21 +91,21 @@ export class WalletDAOMemory extends DAOMemory<Wallet> implements WalletDAO {
     }
 }
 
-export class OrderDAOMemory extends DAOMemory<Order> implements OrderDAO {
-    async getAssetOrders(asset: Asset): Promise<Order[]> {
+export class OrderDAOMemory extends DAOMemory<OrderVO> implements OrderDAO {
+    async getAssetOrders(asset: AssetVO): Promise<OrderVO[]> {
         return this.getData()
             .filter((el) => el.asset_id === asset.id)
             .sort((a, b) => b.price - a.price);
     }
 
     async createOrder(
-        account: Account,
-        asset: Asset,
-        paymentAsset: Asset,
+        account: AccountVO,
+        asset: AssetVO,
+        paymentAsset: AssetVO,
         side: string,
         quantity: number,
         price: number
-    ): Promise<Order> {
+    ): Promise<OrderVO> {
         const order = {
             id: crypto.randomUUID(),
             account_id: account.id,

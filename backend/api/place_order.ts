@@ -1,26 +1,26 @@
 import express, { Request, Response } from "express";
 import Debug from "debug";
-import { PlaceOrder } from "../application/PlaceOrder";
 import { DAODatabaseFactory } from "../DAO/DB";
+import { OrderService } from "../application/order";
 
 const router = express.Router();
 
 const debug = Debug("place_order");
 const reportError = Debug("error");
 
-const placeOrder = new PlaceOrder(new DAODatabaseFactory());
+const order = new OrderService(new DAODatabaseFactory());
 
 router.post("/", async (req: Request, res: Response) => {
     const input = req.body;
 
     try {
         debug("api", input);
-        const order = await placeOrder.execute(
+        const orderData = await order.placeOrder.execute(
             input.accountId,
-            placeOrder.convert(input)
+            order.placeOrder.convert(input)
         );
-        debug("api", order);
-        res.json(order);
+        debug("api", orderData);
+        res.json(orderData);
     } catch (error) {
         reportError(error);
 

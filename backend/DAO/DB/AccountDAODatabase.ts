@@ -1,5 +1,5 @@
 import Debug from "debug";
-import { Account } from "../../entity";
+import { AccountVO } from "../../entity";
 import { DAODatabase } from "./DAODatabase";
 import { AccountDAO } from "..";
 
@@ -8,7 +8,7 @@ import { ERROR_MESSAGE } from "../../service/ErrorService";
 const debug = Debug("db:account");
 
 export class AccountDAODatabase extends DAODatabase implements AccountDAO {
-    async create(account: Account): Promise<Account> {
+    async create(account: AccountVO): Promise<AccountVO> {
         const accountId = crypto.randomUUID();
 
         await this.getConnection().query(
@@ -25,7 +25,7 @@ export class AccountDAODatabase extends DAODatabase implements AccountDAO {
         return this.get(accountId);
     }
 
-    update(account: Account): void {}
+    update(account: AccountVO): void {}
     delete(accountId: string): void {}
 
     async get(accountId: string) {
@@ -38,6 +38,6 @@ export class AccountDAODatabase extends DAODatabase implements AccountDAO {
 
         if (!accountData) throw new Error(ERROR_MESSAGE.ACCOUNT_NOT_FOUND);
 
-        return accountData as Account;
+        return accountData as AccountVO;
     }
 }

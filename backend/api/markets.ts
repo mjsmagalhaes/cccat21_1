@@ -1,4 +1,4 @@
-import { GetDepth } from "./../application/GetDepth";
+import { GetDepth } from "../application/order/GetDepth";
 import express, { Request, Response } from "express";
 import Debug from "debug";
 import { DAODatabaseFactory } from "../DAO/DB";
