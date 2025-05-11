@@ -33,16 +33,16 @@ test("Retorna book de um asset", async () => {
         accountId,
         marketId: "BTC/USD",
         side: "buy",
-        quantity: 10,
-        price: 10000,
+        quantity: "10",
+        price: "10000",
     });
 
     await orderService.placeOrder.execute(accountId, {
         accountId,
         marketId: "BTC/USD",
         side: "buy",
-        quantity: 10,
-        price: 10001,
+        quantity: "10",
+        price: "10001",
     });
 
     const orderBook = await orderService.getDepth.execute("BTC");

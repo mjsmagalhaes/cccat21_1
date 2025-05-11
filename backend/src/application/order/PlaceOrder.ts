@@ -18,8 +18,8 @@ export interface PlaceOrderParam {
     marketId: string;
     accountId: string;
     side: string;
-    quantity: number;
-    price: number;
+    quantity: string;
+    price: string;
 }
 
 export class PlaceOrder {
@@ -35,24 +35,17 @@ export class PlaceOrder {
         this.order = factory.createOrderDAO();
     }
 
-    convert(input: any) {
-        if (!input) throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST);
+    async execute(param: PlaceOrderParam) {
+        let price = parseFloat(param.price);
+        let quantity = parseFloat(param.quantity);
 
-        if (!input.marketId) throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST);
+        if (isNaN(price) || price <= 0)
+            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST)
 
-        input.quantity = parseFloat(input.quantity);
-        if (isNaN(input.quantity) || input.quantity < 0)
-            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST);
+        if (isNaN(quantity) || quantity <= 0)
+            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST)
 
-        input.price = parseFloat(input.price);
-        if (isNaN(input.price) || input.price < 0)
-            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST);
-
-        return input as PlaceOrderParam;
-    }
-
-    async execute(account_id: string, param: PlaceOrderParam) {
-        const account = await this.account.get(account_id);
+        const account = await this.account.get(param.accountId);
 
         const [assetId, paymentAssetId] = (param.marketId ?? "/").split("/");
         debug("Market ID:", assetId, paymentAssetId);
@@ -72,10 +65,7 @@ export class PlaceOrder {
             paymentAsset.toVo().ticker
         );
         debug("asset (wallet):", assetWallet.toVo().quantity, asset.toVo().ticker);
-        debug(
-            `${param.side}: Total = ${param.price} * ${param.quantity} = ${param.price * param.quantity
-            }`
-        );
+        debug(`${param.side}: Total = ${param.price} * ${param.quantity} = ${price * quantity}`);
 
         const side = (param.side ?? "").toLowerCase();
 
@@ -84,11 +74,11 @@ export class PlaceOrder {
 
         if (
             side == "buy" &&
-            paymentAssetWallet.toVo().quantity < param.quantity * param.price
+            paymentAssetWallet.toVo().quantity < quantity * price
         )
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
-        if (side == "sell" && assetWallet.toVo().quantity < param.quantity)
+        if (side == "sell" && assetWallet.toVo().quantity < quantity)
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
         let order = await this.order.create(
@@ -97,8 +87,8 @@ export class PlaceOrder {
                 asset_id: asset.getId(),
                 asset_payment_id: paymentAsset.getId(),
                 side,
-                quantity: param.quantity,
-                price: param.price
+                quantity,
+                price
             }
         );
 
