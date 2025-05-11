@@ -26,6 +26,7 @@
         "ts-node": "^10.9.2",
         "tsx": "^4.19.3",
         "typescript": "^5.8.3",
+        "websocket-express": "^3.1.2",
         "ws": "^8.18.2"
     },
     "devDependencies": {
@@ -33,6 +34,7 @@
         "@types/debug": "^4.1.12",
         "@types/sinon": "^17.0.4",
         "@types/ws": "^8.18.1",
+        "jest-html-reporter": "^4.1.0",
         "sinon": "^20.0.0"
     }
 }
