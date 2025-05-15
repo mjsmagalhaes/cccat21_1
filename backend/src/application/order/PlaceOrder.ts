@@ -8,13 +8,14 @@ import {
     OrderRepository,
     WalletRepository,
 } from "../../DAO";
-import { OrderVO } from "../../entity";
+import { OrderDTO } from "../../domain/entity";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
+import { ExecuteOrder } from "./ExecuteOrder";
 
 const debug = Debug("place_order");
-export const channelNewOrders = new Subject<OrderVO>();
+export const channelNewOrders = new Subject<OrderDTO>();
 
-export interface PlaceOrderParam {
+export interface PlaceOrderInput {
     marketId: string;
     accountId: string;
     side: string;
@@ -28,22 +29,22 @@ export class PlaceOrder {
     private readonly wallet: WalletRepository;
     private readonly order: OrderRepository;
 
-    constructor(factory: AbstractRepositoryFactory) {
+    constructor(private readonly factory: AbstractRepositoryFactory) {
         this.account = factory.createAccountDAO();
         this.asset = factory.createAssetDAO();
         this.wallet = factory.createWalletDAO();
         this.order = factory.createOrderDAO();
     }
 
-    async execute(param: PlaceOrderParam) {
+    async execute(param: PlaceOrderInput) {
         let price = parseFloat(param.price);
         let quantity = parseFloat(param.quantity);
 
         if (isNaN(price) || price <= 0)
-            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST)
+            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST);
 
         if (isNaN(quantity) || quantity <= 0)
-            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST)
+            throw new Error(ERROR_MESSAGE.BAD_ORDER_REQUEST);
 
         const account = await this.account.get(param.accountId);
 
@@ -57,15 +58,26 @@ export class PlaceOrder {
             account.getId(),
             paymentAsset.getId()
         );
-        const assetWallet = await this.wallet.get(account.getId(), asset.getId());
+        const assetWallet = await this.wallet.get(
+            account.getId(),
+            asset.getId()
+        );
 
         debug(
             "paymentAsset (wallet):",
-            paymentAssetWallet.toVo().quantity,
-            paymentAsset.toVo().ticker
+            paymentAssetWallet.toDto().quantity,
+            paymentAsset.toDto().ticker
         );
-        debug("asset (wallet):", assetWallet.toVo().quantity, asset.toVo().ticker);
-        debug(`${param.side}: Total = ${param.price} * ${param.quantity} = ${price * quantity}`);
+        debug(
+            "asset (wallet):",
+            assetWallet.toDto().quantity,
+            asset.toDto().ticker
+        );
+        debug(
+            `${param.side}: Total = ${param.price} * ${param.quantity} = ${
+                price * quantity
+            }`
+        );
 
         const side = (param.side ?? "").toLowerCase();
 
@@ -74,25 +86,28 @@ export class PlaceOrder {
 
         if (
             side == "buy" &&
-            paymentAssetWallet.toVo().quantity < quantity * price
+            paymentAssetWallet.toDto().quantity < quantity * price
         )
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
-        if (side == "sell" && assetWallet.toVo().quantity < quantity)
+        if (side == "sell" && assetWallet.toDto().quantity < quantity)
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
-        let order = await this.order.create(
-            {
-                account_id: account.getId(),
-                asset_id: asset.getId(),
-                asset_payment_id: paymentAsset.getId(),
-                side,
-                quantity,
-                price
-            }
-        );
+        let order = await this.order.create({
+            account_id: account.getId(),
+            asset_id: asset.getId(),
+            asset_payment_id: paymentAsset.getId(),
+            side,
+            quantity,
+            price,
+            status: "open",
+            filled_quantity: 0,
+            filled_price: 0,
+        });
 
-        channelNewOrders.next(order.toVo());
+        new ExecuteOrder(this.factory).execute({ order });
+
+        channelNewOrders.next(order.toDto());
 
         return order;
     }

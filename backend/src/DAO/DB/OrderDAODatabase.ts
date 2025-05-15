@@ -1,11 +1,14 @@
 import Debug from "debug";
-import { Account, AccountVO, Asset, Order, OrderVO } from "../../entity";
-import { DatabaseRepository } from "./DAODatabase";
 import { OrderRepository } from "..";
+import { Asset, Order, OrderDTO } from "../../domain/entity";
+import { DatabaseRepository } from "./DAODatabase";
 
 const debug = Debug("db:order");
 
-export class OrderDAODatabase extends DatabaseRepository implements OrderRepository {
+export class OrderDAODatabase
+    extends DatabaseRepository
+    implements OrderRepository
+{
     async getAssetOrders(asset: Asset): Promise<Order[]> {
         const orders = await this.getConnection().query(
             "select * from ccca.order where asset_id = ${asset_id} sort by price desc",
@@ -17,12 +20,12 @@ export class OrderDAODatabase extends DatabaseRepository implements OrderReposit
         return orders;
     }
 
-    async create(vo: OrderVO): Promise<Order> {
+    async create(vo: OrderDTO): Promise<Order> {
         let order_id = crypto.randomUUID();
         debug("new order", order_id);
 
         await this.getConnection().query(
-            "insert into ccca.order(id,account_id,asset_id,asset_payment_id,side, quantity, price) values (${id},${account_id},${asset_id},${asset_payment_id},${side},${quantity},${price})",
+            "insert into ccca.order(${this:name}) values (${this:csv})",
             vo
         );
 

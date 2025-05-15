@@ -1,15 +1,17 @@
+import { DatabaseRepository } from "./DAODatabase";
 import Debug from "debug";
-import { Account, Asset, AssetVO } from "../../entity";
+import { Account, Asset, AssetDTO } from "../../domain/entity";
 import { AssetRepository } from "..";
 import { ConfigService } from "../../service/ConfigService";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("db:asset");
 
-export class AssetDAODatabase implements AssetRepository {
-    static connection = ConfigService.getConnection();
-
-    create(account: AssetVO): Promise<Asset> {
+export class AssetDAODatabase
+    extends DatabaseRepository
+    implements AssetRepository
+{
+    create(account: AssetDTO): Promise<Asset> {
         throw new Error("Method not implemented.");
     }
 
@@ -22,7 +24,7 @@ export class AssetDAODatabase implements AssetRepository {
     }
 
     async get(assetId: string): Promise<Asset> {
-        const [asset] = await AssetDAODatabase.connection.query(
+        const [asset] = await this.getConnection().query(
             "select * from ccca.asset a where a.ticker = ${asset_id}",
             { asset_id: assetId }
         );

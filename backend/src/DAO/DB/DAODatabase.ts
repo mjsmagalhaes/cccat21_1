@@ -1,7 +1,7 @@
-import { ConfigService } from "../../service/ConfigService";
+import { Application } from "../../application";
 
 export class DatabaseRepository {
     protected getConnection() {
-        return ConfigService.getConnection();
+        return Application.getConnection();
     }
 }

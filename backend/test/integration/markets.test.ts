@@ -21,15 +21,15 @@ beforeAll(() => {
     factory.createAssetDAO().create(usd);
 });
 
-afterAll(() => { });
+afterAll(() => {});
 
 test("Retorna book de um asset", async () => {
     const { accountId } = await accountService.signup.execute(testAccount);
     await accountService.getAccount.execute(accountId);
-    await accountService.deposit.execute(accountId, btc.ticker, 100);
-    await accountService.deposit.execute(accountId, usd.ticker, 1000000);
+    await accountService.deposit.execute(accountId, btc.ticker, "100");
+    await accountService.deposit.execute(accountId, usd.ticker, "1000000");
 
-    await orderService.placeOrder.execute(accountId, {
+    await orderService.placeOrder.execute({
         accountId,
         marketId: "BTC/USD",
         side: "buy",
@@ -37,7 +37,7 @@ test("Retorna book de um asset", async () => {
         price: "10000",
     });
 
-    await orderService.placeOrder.execute(accountId, {
+    await orderService.placeOrder.execute({
         accountId,
         marketId: "BTC/USD",
         side: "buy",

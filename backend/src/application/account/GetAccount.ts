@@ -1,6 +1,6 @@
-import { AccountRepository, AbstractRepositoryFactory } from "../../DAO";
-import { Account, AccountVO } from "../../entity";
-import { UseCaseRequest, UseCase } from "../core/UseCase";
+import { AbstractRepositoryFactory, AccountRepository } from "../../DAO";
+import { AccountDTO } from "../../domain/entity";
+import { UseCase, UseCaseRequest } from "../core/UseCase";
 
 export class GetAccount implements UseCase {
     private readonly account: AccountRepository;
@@ -10,16 +10,15 @@ export class GetAccount implements UseCase {
     }
 
     async execute(accountId: string) {
-        return (await this.account.get(accountId)).toVo();
+        return (await this.account.get(accountId)).toDto();
     }
 
-    async handleRequest(request: UseCaseRequest): Promise<AccountVO> {
-        return await this.execute(request.get('accountId'));
+    async handleRequest(request: UseCaseRequest): Promise<AccountDTO> {
+        return await this.execute(request.get("accountId"));
     }
 
     async validateRequest(request: UseCaseRequest): Promise<void> {
-        let accountId = request.get('accountId');
-        if (!accountId)
-            throw new Error('Missing parameter')
+        let accountId = request.get("accountId");
+        if (!accountId) throw new Error("Missing parameter");
     }
 }

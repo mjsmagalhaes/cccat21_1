@@ -1,8 +1,6 @@
 import Debug from "debug";
-import { AccountRepository, AbstractRepositoryFactory } from "../../DAO";
-import { AccountVO } from "../../entity";
-import { ValidationService } from "../../service/ValidationService";
-import { ERROR_MESSAGE } from "../../service/ErrorService";
+import { AbstractRepositoryFactory, AccountRepository } from "../../DAO";
+import { AccountDTO } from "../../domain/entity";
 
 const debug = Debug("signup");
 
@@ -13,9 +11,9 @@ export class Signup {
         this.account = factory.createAccountDAO();
     }
 
-    public async execute(account: AccountVO) {
+    public async execute(account: AccountDTO) {
         debug("execute");
-        const { id: accountId } = (await this.account.create(account)).toVo();
+        const { id: accountId } = (await this.account.create(account)).toDto();
         return { accountId };
     }
 }

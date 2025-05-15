@@ -1,5 +1,10 @@
 import Debug from "debug";
-import { AccountRepository, AssetRepository, AbstractRepositoryFactory, WalletRepository } from "../../DAO";
+import {
+    AbstractRepositoryFactory,
+    AccountRepository,
+    AssetRepository,
+    WalletRepository,
+} from "../../DAO";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("withdraw");
@@ -30,8 +35,8 @@ export class Withdraw {
 
         return {
             status: "ok",
-            quantity: new_wallet.toVo().quantity,
-            asset_id: new_wallet.toVo().asset_id,
+            quantity: new_wallet.toDto().quantity,
+            asset_id: new_wallet.toDto().asset_id,
         };
     }
 }

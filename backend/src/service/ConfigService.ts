@@ -1,22 +1,24 @@
-import pgp from "pg-promise";
 import config from "config";
-import { AccountVO, AssetVO } from "../entity";
+import { AccountDTO, AssetDTO } from "../domain/entity";
 
 export class ConfigService {
-    static connection: pgp.IDatabase<{}> | undefined = undefined;
+    static getConnectionString() {
+        return config.get<string>("connection");
+    }
 
-    static getConnection = () => {
-        if (this.connection == undefined)
-            this.connection = pgp()(config.get<string>("connection"));
+    static getHttpPort() {
+        return config.get<number>("http.port");
+    }
 
-        return ConfigService.connection as pgp.IDatabase<{}>;
-    };
+    static getWSPort() {
+        return config.get<number>("ws.port");
+    }
 
     static getTestAccount = () => {
-        return config.get<AccountVO>("test.account");
+        return config.get<AccountDTO>("test.account");
     };
 
     static getTestAsset = (asset: string) => {
-        return config.get<AssetVO>("test.asset." + asset);
+        return config.get<AssetDTO>("test.asset." + asset);
     };
 }

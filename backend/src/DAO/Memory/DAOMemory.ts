@@ -1,12 +1,31 @@
 import { AbstractRepositoryFactory } from "../index";
 import Debug from "debug";
-import { IEntity, Account, Asset, Wallet, Order, Entity, OrderVO, WalletVO, AccountVO, AssetVO } from "../../entity";
+import {
+    IEntity,
+    Account,
+    Asset,
+    Wallet,
+    Order,
+    Entity,
+    OrderDTO,
+    WalletDTO,
+    AccountDTO,
+    AssetDTO,
+} from "../../domain/entity";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
-import { AccountRepository, AssetRepository, OrderRepository, WalletRepository } from "..";
+import {
+    AccountRepository,
+    AssetRepository,
+    OrderRepository,
+    WalletRepository,
+} from "..";
 
 const debug = Debug("dao:memory");
 
-export class MemoryRepository<T extends Entity<V>, V extends IEntity = IEntity> {
+export class MemoryRepository<
+    T extends Entity<V>,
+    V extends IEntity = IEntity
+> {
     private data: T[];
 
     constructor(protected readonly entityConstructor: new (props: V) => T) {
@@ -26,12 +45,15 @@ export class MemoryRepository<T extends Entity<V>, V extends IEntity = IEntity> 
 
     async get(id: string): Promise<T> {
         const entity = this.data.find((entity) => entity.getId() === id);
-        if (!entity) throw new Error(`${this.entityConstructor.name} not found.`);
+        if (!entity)
+            throw new Error(`${this.entityConstructor.name} not found.`);
         return entity;
     }
 
     async update(entity: T): Promise<T> {
-        const index = this.data.findIndex((el) => el.getId() === entity.getId());
+        const index = this.data.findIndex(
+            (el) => el.getId() === entity.getId()
+        );
         this.data[index] = entity;
         return entity;
     }
@@ -46,47 +68,60 @@ export class MemoryRepository<T extends Entity<V>, V extends IEntity = IEntity> 
 }
 
 export class AccountMemoryRepository
-    extends MemoryRepository<Account, AccountVO>
-    implements AccountRepository {
-
+    extends MemoryRepository<Account, AccountDTO>
+    implements AccountRepository
+{
     constructor() {
-        super(Account)
+        super(Account);
     }
 }
 
-export class AssetDAOMemory extends MemoryRepository<Asset, AssetVO> implements AssetRepository {
+export class AssetDAOMemory
+    extends MemoryRepository<Asset, AssetDTO>
+    implements AssetRepository
+{
     constructor() {
-        super(Asset)
+        super(Asset);
     }
 
     async get(id: string): Promise<Asset> {
         debug("get", id);
-        let asset = this.getData().find((el) => el.toVo().ticker === id);
+        let asset = this.getData().find((el) => el.toDto().ticker === id);
         if (!asset) throw new Error(ERROR_MESSAGE.ASSET_NOT_FOUND);
 
         return asset;
     }
 }
 
-export class OrderDAOMemory extends MemoryRepository<Order, OrderVO> implements OrderRepository {
+export class OrderDAOMemory
+    extends MemoryRepository<Order, OrderDTO>
+    implements OrderRepository
+{
     constructor() {
-        super(Order)
+        super(Order);
     }
 
     async getAssetOrders(asset: Asset): Promise<Order[]> {
         return this.getData()
-            .filter((el) => el.toVo().asset_id === asset.getId())
-            .sort((a, b) => b.toVo().price - a.toVo().price);
+            .filter((el) => el.toDto().asset_id === asset.getId())
+            .sort((a, b) => b.toDto().price - a.toDto().price);
     }
 }
 
 export class WalletDAOMemory implements WalletRepository {
-    base: MemoryRepository<Wallet, WalletVO> = new MemoryRepository<Wallet, WalletVO>(Wallet);
+    base: MemoryRepository<Wallet, WalletDTO> = new MemoryRepository<
+        Wallet,
+        WalletDTO
+    >(Wallet);
 
     async get(account_id: string, asset_id: string): Promise<Wallet> {
-        let wallet = this.base.getData().find(
-            (el) => el.toVo().account_id === account_id && el.toVo().asset_id === asset_id
-        );
+        let wallet = this.base
+            .getData()
+            .find(
+                (el) =>
+                    el.toDto().account_id === account_id &&
+                    el.toDto().asset_id === asset_id
+            );
 
         if (!wallet) {
             wallet = await this.base.create({
@@ -107,10 +142,10 @@ export class WalletDAOMemory implements WalletRepository {
     ): Promise<Wallet> {
         const wallet = await this.get(account.getId(), asset.getId());
 
-        if (wallet.toVo().quantity + quantity < 0)
+        if (wallet.toDto().quantity + quantity < 0)
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
-        wallet.toVo().quantity += quantity;
+        wallet.toDto().quantity += quantity;
         await this.base.update(wallet);
 
         return wallet;

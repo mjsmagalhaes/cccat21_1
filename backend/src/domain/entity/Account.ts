@@ -1,17 +1,17 @@
-import { ERROR_MESSAGE } from "../service/ErrorService";
-import { ValidationService } from "../service/ValidationService";
-import { Entity, IEntity } from "./core";
+import { ERROR_MESSAGE } from "../../service/ErrorService";
+import { ValidationService } from "../../service/ValidationService";
+import { Entity, IEntity } from "./__core";
 
-export interface AccountVO extends IEntity {
+export interface AccountDTO extends IEntity {
     name: string;
     email: string;
     document: string;
     password: string;
 }
 
-export class Account extends Entity<AccountVO> {
-    constructor(vo: AccountVO) {
-        super(vo)
+export class Account extends Entity<AccountDTO> {
+    constructor(vo: AccountDTO) {
+        super(vo);
 
         this.validateName(vo.name);
         this.validateEmail(vo.email);
@@ -39,4 +39,3 @@ export class Account extends Entity<AccountVO> {
             throw new Error(ERROR_MESSAGE.INVALID_PASSWORD);
     }
 }
-

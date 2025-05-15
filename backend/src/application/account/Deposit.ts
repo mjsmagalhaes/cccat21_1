@@ -1,5 +1,10 @@
-import { AccountRepository, AssetRepository, AbstractRepositoryFactory, WalletRepository } from "../../DAO";
-import { Wallet, WalletVO } from "../../entity";
+import {
+    AbstractRepositoryFactory,
+    AccountRepository,
+    AssetRepository,
+    WalletRepository,
+} from "../../DAO";
+import { WalletDTO } from "../../domain/entity";
 import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 export class Deposit {
@@ -16,10 +21,11 @@ export class Deposit {
     async execute(
         accountId: string,
         assetTicker: string,
-        quantity: number
-    ): Promise<WalletVO> {
+        quantityString: string
+    ): Promise<WalletDTO> {
         const account = await this.account.get(accountId);
         const asset = await this.asset.get(assetTicker);
+        const quantity = parseFloat(quantityString);
 
         if (isNaN(quantity) || quantity <= 0)
             throw new Error(ERROR_MESSAGE.BAD_DEPOSIT_REQUEST);
@@ -30,6 +36,6 @@ export class Deposit {
             quantity
         );
 
-        return new_wallet.toVo();
+        return new_wallet.toDto();
     }
 }

@@ -2,7 +2,7 @@ import { ConfigService } from "../../src/service/ConfigService";
 import { MemoryRepositoryFactory } from "../../src/DAO";
 import { AccountService } from "../../src/application/account";
 import debug from "debug";
-debug.enable('dao:*')
+debug.enable("dao:*");
 
 const factory = new MemoryRepositoryFactory();
 const accountService = new AccountService(factory);
@@ -46,9 +46,13 @@ test("Não deve retirar se a quantidade for maior que o disponível", async () =
 
 test("Deve fazer uma retirada", async () => {
     accountService.signup.execute(account);
-    accountService.deposit.execute(account.id, btc.ticker, 10);
+    accountService.deposit.execute(account.id, btc.ticker, "10");
 
-    const output = await accountService.withdraw.execute(account.id, btc.ticker, 1);
+    const output = await accountService.withdraw.execute(
+        account.id,
+        btc.ticker,
+        1
+    );
 
-    expect(output.status).toBe('ok');
+    expect(output.status).toBe("ok");
 });

@@ -1,5 +1,5 @@
 import Debug from "debug";
-import { Account, AccountVO } from "../../entity";
+import { Account, AccountDTO } from "../../domain/entity";
 import { DatabaseRepository } from "./DAODatabase";
 import { AccountRepository } from "..";
 
@@ -7,20 +7,23 @@ import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("db:account");
 
-export class AccountDAODatabase extends DatabaseRepository implements AccountRepository {
-    async create(accountVo: AccountVO): Promise<Account> {
-        let account = Account.create(accountVo)
+export class AccountDAODatabase
+    extends DatabaseRepository
+    implements AccountRepository
+{
+    async create(accountVo: AccountDTO): Promise<Account> {
+        let account = Account.create(accountVo);
 
         await this.getConnection().query(
             "insert into ccca.account (id, name, email, document, password) values (${id}, ${name}, ${email}, ${document}, ${password})",
-            account.toVo()
+            account.toDto()
         );
 
         return account;
     }
 
-    update(account: Account): void { }
-    delete(accountId: string): void { }
+    update(account: Account): void {}
+    delete(accountId: string): void {}
 
     async get(accountId: string) {
         const [accountData] = await this.getConnection().query(

@@ -1,6 +1,6 @@
 import Debug from "debug";
 
-import { Account, Asset, Wallet } from "../../entity";
+import { Account, Asset, Wallet } from "../../domain/entity";
 import { DatabaseRepository } from "./DAODatabase";
 import { WalletRepository } from "..";
 
@@ -8,7 +8,10 @@ import { ERROR_MESSAGE } from "../../service/ErrorService";
 
 const debug = Debug("db:wallet");
 
-export class WalletDAODatabase extends DatabaseRepository implements WalletRepository {
+export class WalletDAODatabase
+    extends DatabaseRepository
+    implements WalletRepository
+{
     async get(account_id: string, asset_id: string): Promise<Wallet> {
         debug("get", account_id, asset_id);
 
@@ -35,7 +38,7 @@ export class WalletDAODatabase extends DatabaseRepository implements WalletRepos
         debug("create:", account_id, asset_id, quantity);
 
         await this.getConnection().query(
-            "insert into ccca.account_asset (account_id, asset_id, quantity) values (${account_id}, ${asset_id}, ${quantity})",
+            "insert into ccca.account_asset (${this:name}) values (${this:csv})",
             { account_id, asset_id, quantity }
         );
 
@@ -54,10 +57,14 @@ export class WalletDAODatabase extends DatabaseRepository implements WalletRepos
     async createOrUpdate(account: Account, asset: Asset, quantity: number) {
         const wallet = await this.get(account.getId(), asset.getId());
 
-        if (wallet.toVo().quantity + quantity < 0)
+        if (wallet.toDto().quantity + quantity < 0)
             throw new Error(ERROR_MESSAGE.INSUFFICIENT_FUNDS);
 
-        await this.update(account.getId(), asset.getId(), quantity + wallet.toVo().quantity);
+        await this.update(
+            account.getId(),
+            asset.getId(),
+            quantity + wallet.toDto().quantity
+        );
 
         return await this.get(account.getId(), asset.getId());
     }

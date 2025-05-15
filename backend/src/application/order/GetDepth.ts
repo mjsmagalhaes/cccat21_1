@@ -1,5 +1,9 @@
-import { AbstractRepositoryFactory, AssetRepository, OrderRepository } from "../../DAO";
-import { Order } from "../../entity";
+import {
+    AbstractRepositoryFactory,
+    AssetRepository,
+    OrderRepository,
+} from "../../DAO";
+import { Order } from "../../domain/entity";
 
 export type OrderBook = { [key: string]: Order[] };
 
@@ -23,7 +27,7 @@ export class GetDepth {
         const lower = (price: number) => price - (price % base);
 
         const grouped = orders.reduce((acc, order) => {
-            let key = lower(order.toVo().price).toString();
+            let key = lower(order.toDto().price).toString();
 
             if (!acc[key]) acc[key] = [];
             acc[key].push(order);

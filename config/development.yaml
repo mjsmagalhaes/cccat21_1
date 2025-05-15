@@ -1,4 +1,10 @@
 connection: postgres://postgres:123456@localhost:5432/app
+
+http:
+  port: 3000
+ws:
+  port: 3001
+
 test:
   account:
     accountId: 1fb6e901-f4de-4653-80e7-07c207073f61

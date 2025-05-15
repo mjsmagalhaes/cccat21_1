@@ -11,10 +11,10 @@ create table ccca.account (
 	primary key (id)
 );
 
-insert into ccca.account(id, name, email, document, password) 
-values (
-	'1fb6e901-f4de-4653-80e7-07c207073f61', 'A B', 'a@b.com', '87465849004', '123ABCdef'
-);
+-- insert into ccca.account(id, name, email, document, password) 
+-- values (
+-- 	'1fb6e901-f4de-4653-80e7-07c207073f61', 'A B', 'a@b.com', '87465849004', '123ABCdef'
+-- );
 
 create table ccca.asset (
 	id uuid,
@@ -22,11 +22,11 @@ create table ccca.asset (
 	primary key (id)
 );
 
-insert into ccca.asset(id, ticker) values (
-'9b9174a1-17ce-423e-9fef-0aa1dbd314de', 'BTC'
-), (
-'1c3d068e-c326-4ad1-9246-df2b84c393db', 'USD'
-);
+-- insert into ccca.asset(id, ticker) values (
+-- '9b9174a1-17ce-423e-9fef-0aa1dbd314de', 'BTC'
+-- ), (
+-- '1c3d068e-c326-4ad1-9246-df2b84c393db', 'USD'
+-- );
 
 create table ccca.account_asset (
 	id uuid default gen_random_uuid(),
@@ -38,9 +38,9 @@ create table ccca.account_asset (
 );
 
 
-insert into ccca.account_asset(account_id, asset_id, quantity) values (
-'1fb6e901-f4de-4653-80e7-07c207073f61', '9b9174a1-17ce-423e-9fef-0aa1dbd314de', 100
-);
+-- insert into ccca.account_asset(account_id, asset_id, quantity) values (
+-- '1fb6e901-f4de-4653-80e7-07c207073f61', '9b9174a1-17ce-423e-9fef-0aa1dbd314de', 100
+-- );
 
 create table ccca.order(
     id uuid,
@@ -50,6 +50,9 @@ create table ccca.order(
     side varchar(10),
 	quantity decimal,
     price decimal,
+	status text,
+	filled_quantity decimal,
+	filled_price decimal,
     primary key (id),
 	foreign key (account_id) references ccca.account(id)
 );

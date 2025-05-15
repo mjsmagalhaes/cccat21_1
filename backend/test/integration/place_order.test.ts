@@ -1,51 +1,57 @@
 import WebSocket from "ws";
 import sinon from "sinon";
-import Debug from 'debug';
+import Debug from "debug";
 
 import { OrderService } from "../../src/application/order";
 import { MemoryRepositoryFactory } from "../../src/DAO";
 import { ConfigService } from "../../src/service/ConfigService";
 import { AccountService } from "../../src/application/account";
-import { OrderVO } from "../../src/entity";
+import { OrderDTO } from "../../src/domain/entity";
 
 const testAccount = ConfigService.getTestAccount();
 const btc = ConfigService.getTestAsset("btc");
 const usd = ConfigService.getTestAsset("usd");
 
 const debug = Debug("test");
-Debug.enable("error:*")
+Debug.enable("error:*");
 
 test("Não deve criar a ordem se a conta não existir", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
 
-    expect(async () => await orderService.placeOrder.execute({
-        accountId: testAccount.id,
-        marketId: "BTC/USD",
-        price: "200",
-        quantity: "1",
-        side: "buy"
-    })).rejects.toThrow("Account not found.");
+    expect(
+        async () =>
+            await orderService.placeOrder.execute({
+                accountId: testAccount.id,
+                marketId: "BTC/USD",
+                price: "200",
+                quantity: "1",
+                side: "buy",
+            })
+    ).rejects.toThrow("Account not found.");
 });
 
 test("Não deve criar a ordem se o asset não existir", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
     const accountService = new AccountService(factory);
 
-    accountService.signup.execute(testAccount)
+    accountService.signup.execute(testAccount);
 
-    expect(async () => await orderService.placeOrder.execute({
-        accountId: testAccount.id,
-        marketId: "BTÇ/USD",
-        side: "buy",
-        price: "200",
-        quantity: "1",
-    })).rejects.toThrow("Asset not found.");
+    expect(
+        async () =>
+            await orderService.placeOrder.execute({
+                accountId: testAccount.id,
+                marketId: "BTÇ/USD",
+                side: "buy",
+                price: "200",
+                quantity: "1",
+            })
+    ).rejects.toThrow("Asset not found.");
 });
 
 test("Não deve criar a ordem se não informação de side", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
     const accountService = new AccountService(factory);
 
@@ -53,17 +59,20 @@ test("Não deve criar a ordem se não informação de side", async () => {
     factory.createAssetDAO().create(usd);
     accountService.signup.execute(testAccount);
 
-    expect(async () => await orderService.placeOrder.execute({
-        accountId: testAccount.id,
-        marketId: "BTC/USD",
-        // side: "buy",
-        price: 200,
-        quantity: 1,
-    } as any)).rejects.toThrow("Order missing information.");
+    expect(
+        async () =>
+            await orderService.placeOrder.execute({
+                accountId: testAccount.id,
+                marketId: "BTC/USD",
+                // side: "buy",
+                price: 200,
+                quantity: 1,
+            } as any)
+    ).rejects.toThrow("Order missing information.");
 });
 
 test("Não deve criar a ordem se não informação de preço", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
     const accountService = new AccountService(factory);
 
@@ -71,17 +80,20 @@ test("Não deve criar a ordem se não informação de preço", async () => {
     factory.createAssetDAO().create(usd);
     accountService.signup.execute(testAccount);
 
-    expect(async () => await orderService.placeOrder.execute({
-        accountId: testAccount.id,
-        marketId: "BTC/USD",
-        side: "buy",
-        // price: 200,
-        quantity: 1,
-    } as any)).rejects.toThrow("Order missing information.");
+    expect(
+        async () =>
+            await orderService.placeOrder.execute({
+                accountId: testAccount.id,
+                marketId: "BTC/USD",
+                side: "buy",
+                // price: 200,
+                quantity: 1,
+            } as any)
+    ).rejects.toThrow("Order missing information.");
 });
 
 test("Não deve criar a ordem se não informação de quantidade", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
     const accountService = new AccountService(factory);
 
@@ -89,17 +101,20 @@ test("Não deve criar a ordem se não informação de quantidade", async () => {
     factory.createAssetDAO().create(usd);
     accountService.signup.execute(testAccount);
 
-    expect(async () => await orderService.placeOrder.execute({
-        accountId: testAccount.id,
-        marketId: "BTC/USD",
-        side: "buy",
-        price: 200,
-        // quantity: 1,
-    } as any)).rejects.toThrow("Order missing information.");
+    expect(
+        async () =>
+            await orderService.placeOrder.execute({
+                accountId: testAccount.id,
+                marketId: "BTC/USD",
+                side: "buy",
+                price: 200,
+                // quantity: 1,
+            } as any)
+    ).rejects.toThrow("Order missing information.");
 });
 
 test("Não deve criar a ordem se não há saldo disponível BUY", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
     const accountService = new AccountService(factory);
 
@@ -107,17 +122,20 @@ test("Não deve criar a ordem se não há saldo disponível BUY", async () => {
     factory.createAssetDAO().create(usd);
     accountService.signup.execute(testAccount);
 
-    expect(async () => await orderService.placeOrder.execute({
-        accountId: testAccount.id,
-        marketId: "BTC/USD",
-        side: "buy",
-        quantity: 10000,
-        price: 2000000,
-    } as any)).rejects.toThrow("Insufficient funds.");
+    expect(
+        async () =>
+            await orderService.placeOrder.execute({
+                accountId: testAccount.id,
+                marketId: "BTC/USD",
+                side: "buy",
+                quantity: 10000,
+                price: 2000000,
+            } as any)
+    ).rejects.toThrow("Insufficient funds.");
 });
 
 test("Não deve criar a ordem se não há saldo disponível SELL", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
     const accountService = new AccountService(factory);
 
@@ -125,18 +143,20 @@ test("Não deve criar a ordem se não há saldo disponível SELL", async () => {
     factory.createAssetDAO().create(usd);
     accountService.signup.execute(testAccount);
 
-    expect(async () => await orderService.placeOrder.execute({
-        accountId: testAccount.id,
-        marketId: "BTC/USD",
-        side: "sell",
-        quantity: 10000,
-        price: 2000000,
-
-    } as any)).rejects.toThrow("Insufficient funds.");
+    expect(
+        async () =>
+            await orderService.placeOrder.execute({
+                accountId: testAccount.id,
+                marketId: "BTC/USD",
+                side: "sell",
+                quantity: 10000,
+                price: 2000000,
+            } as any)
+    ).rejects.toThrow("Insufficient funds.");
 });
 
 test("Deve criar a ordem", async () => {
-    const factory = new MemoryRepositoryFactory()
+    const factory = new MemoryRepositoryFactory();
     const orderService = new OrderService(factory);
     const accountService = new AccountService(factory);
 
@@ -144,10 +164,10 @@ test("Deve criar a ordem", async () => {
     factory.createAssetDAO().create(usd);
 
     accountService.signup.execute(testAccount);
-    accountService.deposit.execute(testAccount.id, btc.ticker, 1)
+    accountService.deposit.execute(testAccount.id, btc.ticker, "1");
 
     const handler = {
-        message: function (obj: OrderVO) {
+        message: function (obj: OrderDTO) {
             debug(obj);
             return obj;
         },
@@ -157,7 +177,7 @@ test("Deve criar a ordem", async () => {
 
     orderService.placeOrder.getChannel().subscribe(handler.message);
 
-    await accountService.deposit.execute(testAccount.id, btc.ticker, 10)
+    await accountService.deposit.execute(testAccount.id, btc.ticker, "10");
 
     const output = await orderService.placeOrder.execute({
         accountId: testAccount.id,
@@ -165,15 +185,13 @@ test("Deve criar a ordem", async () => {
         side: "sell",
         quantity: 1,
         price: 1000,
-
-    } as any)
+    } as any);
 
     expect(spy.message.calledOnce).toBe(true);
     expect(spy.message.returnValues[0].asset_id).toEqual(btc.id);
     expect(spy.message.returnValues[0].asset_payment_id).toEqual(usd.id);
     spy.message.restore();
 });
-
 
 // test("Deve criar a ordem", async () => {
 //     const factory = new MemoryRepositoryFactory()

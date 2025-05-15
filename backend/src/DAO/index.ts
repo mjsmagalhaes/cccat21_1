@@ -1,13 +1,22 @@
-import { Account, AccountVO, Asset, AssetVO, Order, OrderVO, Wallet, WalletVO } from "../entity";
+import {
+    Account,
+    AccountDTO,
+    Asset,
+    AssetDTO,
+    Order,
+    OrderDTO,
+    Wallet,
+    WalletDTO,
+} from "../domain/entity";
 
 export interface AccountRepository {
-    create(account: AccountVO): Promise<Account>;
+    create(account: AccountDTO): Promise<Account>;
     delete(accountId: string): void;
     get(accountId: string): Promise<Account>;
 }
 
 export interface AssetRepository {
-    create(asset: AssetVO): Promise<Asset>;
+    create(asset: AssetDTO): Promise<Asset>;
     delete(assetId: string): void;
     get(assetId: string): Promise<Asset>;
 }
@@ -23,7 +32,7 @@ export interface WalletRepository {
 }
 
 export interface OrderRepository {
-    create(vo: Omit<OrderVO, "id">): Promise<Order>;
+    create(vo: Omit<OrderDTO, "id">): Promise<Order>;
     get(order_id: string): Promise<Order>;
     getAssetOrders(asset: Asset): Promise<Order[]>;
 }
@@ -35,5 +44,13 @@ export interface AbstractRepositoryFactory {
     createOrderDAO(): OrderRepository;
 }
 
-export { MemoryRepositoryFactory } from "./Memory/DAOMemory"
-export { DatabaseRepositoryFactory } from "./DB/Factory"
+export interface TradeRepository {
+    account_id: string;
+    asset_id: string;
+    side: string;
+    price: number;
+    quantity: number;
+}
+
+export { MemoryRepositoryFactory } from "./Memory/DAOMemory";
+export { DatabaseRepositoryFactory } from "./DB/Factory";
